@@ -1,4 +1,4 @@
-package cz.centrum.haffner.SimpleTrainingDavid;
+package cz.centrum.haffner.SimpleTrainingDavid.REST;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
