@@ -12,23 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SimpleTrainingDavidController {
 
-        // private static final String TEMPLATE = "Hello, %s!";
-
-
-        /* David: just for first testing of REST
-        @GetMapping("/greeting")
-        public String responseGreeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-            return String.format(TEMPLATE, name);
-        }
-        */
-
+        /*
         @GetMapping("/{requestedDate}")            // supposed date format: YYYYMMDD
         public String getParticularDate(@PathVariable long requestedDate) {
             return "Here is your date: " + String.valueOf(requestedDate);
         }
+        */
 
-        @GetMapping("/metrics")
-        public MetricsInfoSet getMetrics() {
+        @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
+        public MetricsInfoSet getMetrics(@PathVariable long requestedDate) {
             MetricsInfoService metricsInfoService = new MetricsInfoService();
             return metricsInfoService.proceedMetricsInfoSet();
         }
