@@ -1,6 +1,6 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
-public class KpisInfoSet {
+public class KpisInfoDataSet {
 
     // TODO: rename variables, getters and setters
     private int a;           // Total number of processed JSON files
@@ -11,7 +11,7 @@ public class KpisInfoSet {
     private int f;           // Total number of different destination country codes
     private int g;           // Duration of each JSON process
 
-    public KpisInfoSet(int a, int b, int c, int d, int e, int f, int g) {
+    public KpisInfoDataSet(int a, int b, int c, int d, int e, int f, int g) {
         this.a = a;
         this.b = b;
         this.c = c;

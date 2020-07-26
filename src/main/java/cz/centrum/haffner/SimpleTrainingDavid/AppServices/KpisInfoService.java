@@ -1,6 +1,6 @@
 package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoSet;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoDataSet;
 
 // algorithm for returning of the proper KpisInfo set
 public class KpisInfoService {
@@ -9,7 +9,7 @@ public class KpisInfoService {
 
     }
 
-    public KpisInfoSet proceedKpisInfoSet() {
-        return new KpisInfoSet (10,9,8,7,6,5,4);
+    public KpisInfoDataSet proceedKpisInfoSet() {
+        return new KpisInfoDataSet(10,9,8,7,6,5,4);
     }
 }
