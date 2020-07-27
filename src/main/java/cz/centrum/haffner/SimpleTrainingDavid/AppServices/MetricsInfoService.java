@@ -1,38 +1,27 @@
 package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoDataSet;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-// algorithm for returning of the proper MetricsInfo data set
+// algorithm for returning of the proper MetricsInfo data
 @Service
 public class MetricsInfoService {
-    @Autowired
-    private MetricsInfoDataSet metricsInfoDataSet;
+    // TODO: net approach doesn´t work
+    // private static final String FILE_PATH = "https://github.com/DavidHaffner/SimpleTrainingDavid/tree/dev/logs/MCP_20180131.json";
+    private static final String FILE_PATH_PREFIX = "C://work/SimpleTrainingDavid/src/main/resources/MCPData/";
 
     @Autowired
     private OneDayFileJsonParser oneDayFileJsonsParser;
 
 
-    public MetricsInfoService(){
-    }
+    public MetricsInfoData processMetricsInfoData(long requestedDate) {
+        // get the file of requested date
+        String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";
+        File oneDayFile = new File(filePath);
 
-
-    public MetricsInfoDataSet proceedMetricsInfoDataSet(long requestedDate) {
-        // incrementation of dataset & parser counters to zero
-        metricsInfoDataSet.incrementToZeroValues();
-        oneDayFileJsonsParser.incrementToZeroValues();
-
-        // parsing of one day file data to the final metrics info data set + return
-        return oneDayFileJsonsParser.parseOneDayFile(requestedDate, metricsInfoDataSet);
+        return oneDayFileJsonsParser.parseOneDayFile(oneDayFile);
     }
 }

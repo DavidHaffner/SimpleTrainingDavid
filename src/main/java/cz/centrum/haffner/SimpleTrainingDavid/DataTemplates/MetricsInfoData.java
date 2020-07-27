@@ -3,7 +3,7 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MetricsInfoDataSet {
+public class MetricsInfoData {
 
     private int missingFieldsRowsCounter =0;        // Number of rows with missing fields
     private int blankContentMessagesCounter =0;     // Number of messages with blank content
@@ -14,18 +14,28 @@ public class MetricsInfoDataSet {
     private String givenWordsRanking ="UNDER CONSTRUCTION YET";  // TODO: Word occurrence ranking for the given words in message
 
 
-    public MetricsInfoDataSet() {
+    public void addOneToMissingFieldsRowsCounter() {
+        this.missingFieldsRowsCounter ++;
     }
 
+    public void addOneToBlankContentMessagesCounter() {
+        this.blankContentMessagesCounter ++;
+    }
 
-    public void incrementToZeroValues() {
-        this.missingFieldsRowsCounter =0;
-        this.blankContentMessagesCounter =0;
-        this.fieldsErrorsRowsCounter =0;
-        this.groupedCallsCounter =0;
-        this.koToOkRatio =0.0f;
-        this.averageCallDuration =0.0f;
-        this.givenWordsRanking ="UNDER CONSTRUCTION YET";
+    public void addOneToFieldsErrorsRowsCounter() {
+        this.fieldsErrorsRowsCounter ++;
+    }
+
+    public void addOneToGroupedCallsCounter() {
+        this.groupedCallsCounter ++;
+    }
+
+    public void addOneToKoToOkRatio() {
+        this.koToOkRatio ++;
+    }
+
+    public void addOneToAverageCallDuration() {
+        this.averageCallDuration ++;
     }
 
 

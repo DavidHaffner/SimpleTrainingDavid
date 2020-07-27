@@ -2,7 +2,7 @@ package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoDataSet;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -14,25 +14,23 @@ import java.util.Map;
 
 @Component
 public class OneDayFileJsonParser {
-    // TODO: net approach doesn´t work
-    // private static final String FILE_PATH = "https://github.com/DavidHaffner/SimpleTrainingDavid/tree/dev/logs/MCP_20180131.json";
-    private static final String FILE_PATH_PREFIX = "C://work/SimpleTrainingDavid/src/main/resources/MCPData/";
 
     private int callsCounter = 0;
     private int okCallsCounter = 0;
     private int koCallsCounter = 0;
 
-
-    public OneDayFileJsonParser() {
-    }
+    private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoDataSet parseOneDayFile (long requestedDate, MetricsInfoDataSet metricsInfoDataSet) {
-        // set the file path
-        String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";
+    public MetricsInfoData parseOneDayFile (File inputFile) {
+        // new data instance with zero values
+        metricsInfoData = new MetricsInfoData();
+
+        // incrementation of parser counters to zero
+        incrementCountersToZeroValues();
 
         //
-        try (BufferedReader br = new BufferedReader(new FileReader(new File(filePath)))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,13 +44,13 @@ public class OneDayFileJsonParser {
                 if ("CALL".equals( jsonMap.get("message_type") )) {
 
                     // rows with missing fields
-                    if ("".equals(jsonMap.get("timestamp")) ||
+                    if ( "".equals(jsonMap.get("timestamp")) ||
                             "".equals(jsonMap.get("origin")) ||
                             "".equals(jsonMap.get("destination")) ||
                             "".equals(jsonMap.get("duration")) ||
                             "".equals(jsonMap.get("status_code")) ||
                             "".equals(jsonMap.get("status_description")) )
-                    {metricsInfoDataSet.setMissingFieldsRowsCounter( metricsInfoDataSet.getMissingFieldsRowsCounter() +1);}
+                        {metricsInfoData.addOneToMissingFieldsRowsCounter();}
 
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
@@ -61,7 +59,7 @@ public class OneDayFileJsonParser {
                             jsonMap.get("duration").getClass() != Integer.class ||
                             !( "OK".equals(jsonMap.get("status_code")) || "KO".equals(jsonMap.get("status_code")) ) ||
                             jsonMap.get("status_description").getClass() != String.class )
-                    {metricsInfoDataSet.setFieldsErrorsRowsCounter(metricsInfoDataSet.getFieldsErrorsRowsCounter() +1);}
+                        {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
 
                     // relation between OK/KO calls
                     if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter ++;}
@@ -69,8 +67,8 @@ public class OneDayFileJsonParser {
 
                     // average call duration
                     if ( jsonMap.get("duration").getClass() == Integer.class ) {
-                        metricsInfoDataSet.setAverageCallDuration(
-                                ( metricsInfoDataSet.getAverageCallDuration() * callsCounter + (int)jsonMap.get("duration") )
+                        metricsInfoData.setAverageCallDuration(
+                                ( metricsInfoData.getAverageCallDuration() * callsCounter + (int)jsonMap.get("duration") )
                                 / ++callsCounter );
                     }
 
@@ -82,11 +80,11 @@ public class OneDayFileJsonParser {
                             "".equals(jsonMap.get("origin")) ||
                             "".equals(jsonMap.get("destination")) ||
                             "".equals(jsonMap.get("message_status")) )
-                    {metricsInfoDataSet.setMissingFieldsRowsCounter(metricsInfoDataSet.getMissingFieldsRowsCounter() +1);}
+                        {metricsInfoData.addOneToMissingFieldsRowsCounter();}
 
                     // messages with blank content
                     if ("".equals(jsonMap.get("message_content")) ) {
-                        metricsInfoDataSet.setBlankContentMessagesCounter(metricsInfoDataSet.getBlankContentMessagesCounter() +1);}
+                        metricsInfoData.addOneToBlankContentMessagesCounter();}
 
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
@@ -94,27 +92,27 @@ public class OneDayFileJsonParser {
                             jsonMap.get("destination").getClass() != Long.class ||
                             jsonMap.get("message_content").getClass() != String.class ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
-                    {metricsInfoDataSet.setFieldsErrorsRowsCounter(metricsInfoDataSet.getFieldsErrorsRowsCounter() +1);}
+                        {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
 
                 } else if ("".equals( jsonMap.get("message_type") )){
-                    metricsInfoDataSet.setMissingFieldsRowsCounter(metricsInfoDataSet.getMissingFieldsRowsCounter() +1);
+                    metricsInfoData.addOneToMissingFieldsRowsCounter();
                 } else {
                     // field error in message_type
-                    metricsInfoDataSet.setFieldsErrorsRowsCounter(metricsInfoDataSet.getFieldsErrorsRowsCounter() +1);
+                    metricsInfoData.addOneToFieldsErrorsRowsCounter();
                 }
             }
 
             // final mapping
-            metricsInfoDataSet.setGroupedCallsCounter(callsCounter);  // TODO: temporary solution
-            metricsInfoDataSet.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);  // the share of KO result to OK result
+            metricsInfoData.setGroupedCallsCounter(callsCounter);  // TODO: temporary solution
+            metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);  // the share of KO result to OK result
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return metricsInfoDataSet;
+        return metricsInfoData;
     }
 
-    public void incrementToZeroValues() {
+    public void incrementCountersToZeroValues() {
         this.callsCounter = 0;
         this.okCallsCounter = 0;
         this.koCallsCounter = 0;
