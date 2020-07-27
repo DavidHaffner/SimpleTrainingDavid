@@ -11,7 +11,8 @@ import java.io.File;
 public class MetricsInfoService {
     // TODO: net approach doesn´t work
     // private static final String FILE_PATH = "https://github.com/DavidHaffner/SimpleTrainingDavid/tree/dev/logs/MCP_20180131.json";
-    private static final String FILE_PATH_PREFIX = "C://work/SimpleTrainingDavid/src/main/resources/MCPData/";
+    private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getClassLoader()
+                                                        .getResource("MCPData/").getPath();
 
     @Autowired
     private OneDayFileJsonParser oneDayFileJsonsParser;
