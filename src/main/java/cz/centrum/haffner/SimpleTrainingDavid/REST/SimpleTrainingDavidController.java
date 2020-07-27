@@ -2,40 +2,35 @@ package cz.centrum.haffner.SimpleTrainingDavid.REST;
 
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.KpisInfoService;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.MetricsInfoService;
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoSet;
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoSet;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SimpleTrainingDavidController {
 
-        // private static final String TEMPLATE = "Hello, %s!";
+    @Autowired
+    private MetricsInfoService metricsInfoService;
+    @Autowired
+    private KpisInfoService kpisInfoService;
 
 
-        /* David: just for first testing of REST
-        @GetMapping("/greeting")
-        public String responseGreeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-            return String.format(TEMPLATE, name);
-        }
-        */
+    @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
+    public @ResponseBody ResponseEntity<MetricsInfoData> getMetrics(@PathVariable long requestedDate) {
+        MetricsInfoData response = metricsInfoService.processMetricsInfoData(requestedDate);
+        return new ResponseEntity<MetricsInfoData>(response, HttpStatus.OK);
+    }
 
-        @GetMapping("/{requestedDate}")            // supposed date format: YYYYMMDD
-        public String getParticularDate(@PathVariable long requestedDate) {
-            return "Here is your date: " + String.valueOf(requestedDate);
-        }
 
-        @GetMapping("/metrics")
-        public MetricsInfoSet getMetrics() {
-            MetricsInfoService metricsInfoService = new MetricsInfoService();
-            return metricsInfoService.proceedMetricsInfoSet();
-        }
-
-        @GetMapping("/kpis")
-        public KpisInfoSet getKpis() {
-            KpisInfoService kpisInfoService = new KpisInfoService();
-            return kpisInfoService.proceedKpisInfoSet();
-        }
+    @GetMapping("/kpis")
+    public @ResponseBody ResponseEntity<KpisInfoData> getKpis() {
+        KpisInfoData response = kpisInfoService.processKpisInfoData();
+        return new ResponseEntity<KpisInfoData>(response, HttpStatus.OK);
+    }
 }
