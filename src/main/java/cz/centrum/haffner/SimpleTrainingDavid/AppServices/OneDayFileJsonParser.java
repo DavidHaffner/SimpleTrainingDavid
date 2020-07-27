@@ -2,7 +2,9 @@ package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -18,6 +20,9 @@ public class OneDayFileJsonParser {
     private int callsCounter = 0;
     private int okCallsCounter = 0;
     private int koCallsCounter = 0;
+
+    @Autowired
+    private KpisInfoData kpisInfoData;
 
     private MetricsInfoData metricsInfoData;
 
@@ -72,7 +77,9 @@ public class OneDayFileJsonParser {
                                 / ++callsCounter );
                     }
 
-                    // MSG type of file row
+                    kpisInfoData.addOneToTotalCallsNumber();
+
+                // MSG type of file row
                 } else if ("MSG".equals( jsonMap.get("message_type") )) {
 
                     // rows with missing fields
@@ -94,13 +101,18 @@ public class OneDayFileJsonParser {
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
                         {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
 
+                    kpisInfoData.addOneToTotalMessagesNumber();
+
                 } else if ("".equals( jsonMap.get("message_type") )){
                     metricsInfoData.addOneToMissingFieldsRowsCounter();
                 } else {
                     // field error in message_type
                     metricsInfoData.addOneToFieldsErrorsRowsCounter();
                 }
+
+                kpisInfoData.addOneToTotalRowsNumber();
             }
+            kpisInfoData.addOneToProcessedFilesNumber();
 
             // final mapping
             metricsInfoData.setGroupedCallsCounter(callsCounter);  // TODO: temporary solution

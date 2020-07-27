@@ -1,79 +1,103 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
+import org.springframework.stereotype.Component;
+
+// singleton containing global service operations counters
+@Component
 public class KpisInfoData {
 
-    // TODO: rename variables, getters and setters
-    private int a;           // Total number of processed JSON files
-    private int b;           // Total number of rows
-    private int c;           // Total number of calls
-    private int d;           // Total number of messages
-    private int e;           // Total number of different origin country codes
-    private int f;           // Total number of different destination country codes
-    private int g;           // Duration of each JSON process
+    private int processedFilesNumber =0;           // Total number of processed JSON files
+    private int totalRowsNumber =0;                // Total number of rows
+    private int totalCallsNumber =0;               // Total number of calls
+    private int totalMessagesNumber =0;            // Total number of messages
+    private int differentOriginsNumber =0;         // Total number of different origin country codes
+    private int differentDestinationsNumber =0;    // Total number of different destination country codes
+    private int averageJsonProcessDuration =0;     // Duration of each JSON process (ms)
 
-    public KpisInfoData(int a, int b, int c, int d, int e, int f, int g) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-        this.e = e;
-        this.f = f;
-        this.g = g;
+
+    public void addOneToProcessedFilesNumber() {
+        this.processedFilesNumber ++;
     }
 
-    public int getA() {
-        return a;
+    public void addOneToTotalRowsNumber() {
+        this.totalRowsNumber ++;
     }
 
-    public void setA(int a) {
-        this.a = a;
+    public void addOneToTotalCallsNumber() {
+        this.totalCallsNumber ++;
     }
 
-    public int getB() {
-        return b;
+    public void addOneToTotalMessagesNumber() {
+        this.totalMessagesNumber ++;
     }
 
-    public void setB(int b) {
-        this.b = b;
+    public void addOneToDifferentOriginsNumber() {
+        this.differentOriginsNumber ++;
     }
 
-    public int getC() {
-        return c;
+    public void addOneToDifferentDestinationsNumber() {
+        this.differentDestinationsNumber ++;
     }
 
-    public void setC(int c) {
-        this.c = c;
+    public void processAverageDuration() {
+        // algorithm of averiging;
     }
 
-    public int getD() {
-        return d;
+
+    // getters & setters
+    public int getProcessedFilesNumber() {
+        return processedFilesNumber;
     }
 
-    public void setD(int d) {
-        this.d = d;
+    public void setProcessedFilesNumber(int processedFilesNumber) {
+        this.processedFilesNumber = processedFilesNumber;
     }
 
-    public int getE() {
-        return e;
+    public int getTotalRowsNumber() {
+        return totalRowsNumber;
     }
 
-    public void setE(int e) {
-        this.e = e;
+    public void setTotalRowsNumber(int totalRowsNumber) {
+        this.totalRowsNumber = totalRowsNumber;
     }
 
-    public int getF() {
-        return f;
+    public int getTotalCallsNumber() {
+        return totalCallsNumber;
     }
 
-    public void setF(int f) {
-        this.f = f;
+    public void setTotalCallsNumber(int totalCallsNumber) {
+        this.totalCallsNumber = totalCallsNumber;
     }
 
-    public int getG() {
-        return g;
+    public int getTotalMessagesNumber() {
+        return totalMessagesNumber;
     }
 
-    public void setG(int g) {
-        this.g = g;
+    public void setTotalMessagesNumber(int totalMessagesNumber) {
+        this.totalMessagesNumber = totalMessagesNumber;
+    }
+
+    public int getDifferentOriginsNumber() {
+        return differentOriginsNumber;
+    }
+
+    public void setDifferentOriginsNumber(int differentOriginsNumber) {
+        this.differentOriginsNumber = differentOriginsNumber;
+    }
+
+    public int getDifferentDestinationsNumber() {
+        return differentDestinationsNumber;
+    }
+
+    public void setDifferentDestinationsNumber(int differentDestinationsNumber) {
+        this.differentDestinationsNumber = differentDestinationsNumber;
+    }
+
+    public int getAverageJsonProcessDuration() {
+        return averageJsonProcessDuration;
+    }
+
+    public void setAverageJsonProcessDuration(int averageJsonProcessDuration) {
+        this.averageJsonProcessDuration = averageJsonProcessDuration;
     }
 }
