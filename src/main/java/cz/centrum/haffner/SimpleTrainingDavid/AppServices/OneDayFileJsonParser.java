@@ -2,7 +2,7 @@ package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.CountryCodeMap;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,9 @@ public class OneDayFileJsonParser {
     private int koCallsCounter = 0;
 
     @Autowired
-    private KpisInfoData kpisInfoData;
+    private KpisInfoProcessor kpisInfoProcessor;
+    @Autowired
+    private CountryCodeMap countryCodeMap;
 
     private MetricsInfoData metricsInfoData;
 
@@ -45,6 +47,18 @@ public class OneDayFileJsonParser {
                 // converts JSON to Map
                 jsonMap = objectMapper.readValue(fileLine, new TypeReference<Map<String, Object>>(){});
 
+                // get Origins & Destinations country code
+                int originCountryCode =-1;
+                int destinationCountryCode =-1;
+                if ( !("".equals(jsonMap.get("origin"))) ) {
+                    originCountryCode = extractCountryCodeFromMsisdn(
+                            ((Number)jsonMap.get("origin")).longValue() );
+                }
+                if ( !("".equals(jsonMap.get("destination"))) ) {
+                    destinationCountryCode = extractCountryCodeFromMsisdn(
+                            ((Number)jsonMap.get("destination")).longValue() );
+                }
+
                 // CALL type of file row
                 if ("CALL".equals( jsonMap.get("message_type") )) {
 
@@ -60,7 +74,9 @@ public class OneDayFileJsonParser {
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
                             jsonMap.get("origin").getClass() != Long.class ||
+                            originCountryCode == 0 ||                                   // 0 means CC not found
                             jsonMap.get("destination").getClass() != Long.class ||
+                            destinationCountryCode == 0 ||                              // 0 means CC not found
                             jsonMap.get("duration").getClass() != Integer.class ||
                             !( "OK".equals(jsonMap.get("status_code")) || "KO".equals(jsonMap.get("status_code")) ) ||
                             jsonMap.get("status_description").getClass() != String.class )
@@ -77,7 +93,7 @@ public class OneDayFileJsonParser {
                                 / ++callsCounter );
                     }
 
-                    kpisInfoData.addOneToTotalCallsNumber();
+                    kpisInfoProcessor.addOneToTotalCallsNumber();
 
                 // MSG type of file row
                 } else if ("MSG".equals( jsonMap.get("message_type") )) {
@@ -96,12 +112,14 @@ public class OneDayFileJsonParser {
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
                             jsonMap.get("origin").getClass() != Long.class ||
+                            originCountryCode == 0 ||                                   // 0 means CC not found
                             jsonMap.get("destination").getClass() != Long.class ||
+                            destinationCountryCode == 0 ||                              // 0 means CC not found
                             jsonMap.get("message_content").getClass() != String.class ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
                         {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
 
-                    kpisInfoData.addOneToTotalMessagesNumber();
+                    kpisInfoProcessor.addOneToTotalMessagesNumber();
 
                 } else if ("".equals( jsonMap.get("message_type") )){
                     metricsInfoData.addOneToMissingFieldsRowsCounter();
@@ -110,9 +128,13 @@ public class OneDayFileJsonParser {
                     metricsInfoData.addOneToFieldsErrorsRowsCounter();
                 }
 
-                kpisInfoData.addOneToTotalRowsNumber();
+                kpisInfoProcessor.addOneToTotalRowsNumber();
+                if (originCountryCode >0) {                                 // value of -1 or 0 means invalid code
+                    kpisInfoProcessor.addOriginsCode(originCountryCode);}
+                if (destinationCountryCode >0) {                            // value of -1 or 0 means invalid code
+                    kpisInfoProcessor.addDestinationsCode(destinationCountryCode);}
             }
-            kpisInfoData.addOneToProcessedFilesNumber();
+            kpisInfoProcessor.addOneToProcessedFilesNumber();
 
             // final mapping
             metricsInfoData.setGroupedCallsCounter(callsCounter);  // TODO: temporary solution
@@ -128,5 +150,19 @@ public class OneDayFileJsonParser {
         this.callsCounter = 0;
         this.okCallsCounter = 0;
         this.koCallsCounter = 0;
+    }
+
+    private int extractCountryCodeFromMsisdn(long msisdnNumber) {
+        String msisdnString = String.valueOf(msisdnNumber);
+
+        if ( countryCodeMap.get(msisdnString.substring(0)) != null ) {
+            return Integer.parseInt(msisdnString.substring(0));
+        } else if ( countryCodeMap.get(msisdnString.substring(0,2)) != null ) {
+            return Integer.parseInt(msisdnString.substring(0,2));
+        } else if ( countryCodeMap.get(msisdnString.substring(0,3)) != null ) {
+            return Integer.parseInt(msisdnString.substring(0,3));
+        } else {
+            return 0;     // the code of an invalid value (CC not found in the CC map)
+        }
     }
 }

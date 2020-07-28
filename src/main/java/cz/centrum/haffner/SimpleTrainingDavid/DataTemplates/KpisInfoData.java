@@ -31,17 +31,6 @@ public class KpisInfoData {
         this.totalMessagesNumber ++;
     }
 
-    public void addOneToDifferentOriginsNumber() {
-        this.differentOriginsNumber ++;
-    }
-
-    public void addOneToDifferentDestinationsNumber() {
-        this.differentDestinationsNumber ++;
-    }
-
-    public void processAverageDuration() {
-        // algorithm of averiging;
-    }
 
 
     // getters & setters
