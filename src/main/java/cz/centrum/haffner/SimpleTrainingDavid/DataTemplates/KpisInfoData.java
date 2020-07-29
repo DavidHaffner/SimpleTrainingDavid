@@ -2,6 +2,9 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
+import java.util.List;
+
 // singleton containing global service operations counters
 @Component
 public class KpisInfoData {
@@ -12,7 +15,7 @@ public class KpisInfoData {
     private int totalMessagesNumber =0;            // Total number of messages
     private int differentOriginsNumber =0;         // Total number of different origin country codes
     private int differentDestinationsNumber =0;    // Total number of different destination country codes
-    private int averageJsonProcessDuration =0;     // Duration of each JSON process (ms)
+    private List jsonProcessingDurationList = new LinkedList<Long>();     // Duration of each JSON process
 
 
     public void addOneToProcessedFilesNumber() {
@@ -82,11 +85,23 @@ public class KpisInfoData {
         this.differentDestinationsNumber = differentDestinationsNumber;
     }
 
-    public int getAverageJsonProcessDuration() {
-        return averageJsonProcessDuration;
+    public List getLastTenProcessingDurations() {
+        int listSize = jsonProcessingDurationList.size();
+        if ( listSize <11 ) {
+            return jsonProcessingDurationList;
+        } else {
+            // last 10 elements
+            List lastTenElements = new LinkedList();
+            for (int i=1; i<11 ; i++) {
+               lastTenElements.add( jsonProcessingDurationList.get(listSize-i) );
+            }
+
+            return lastTenElements;
+        }
     }
 
-    public void setAverageJsonProcessDuration(int averageJsonProcessDuration) {
-        this.averageJsonProcessDuration = averageJsonProcessDuration;
+    public void addJsonProcessingDuration(long processingDuration) {
+        this.jsonProcessingDurationList.add(processingDuration);
     }
+
 }

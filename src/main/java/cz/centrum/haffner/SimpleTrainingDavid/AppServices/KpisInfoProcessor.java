@@ -16,9 +16,13 @@ public class KpisInfoProcessor {
     private KpisInfoData kpisInfoData;
 
 
-    public void addOneToProcessedFilesNumber() { kpisInfoData.addOneToProcessedFilesNumber(); }
+    public void addOneToProcessedFilesNumber() {
+        kpisInfoData.addOneToProcessedFilesNumber();
+    }
 
-    public void addOneToTotalRowsNumber() { kpisInfoData.addOneToTotalRowsNumber(); }
+    public void addOneToTotalRowsNumber() {
+        kpisInfoData.addOneToTotalRowsNumber();
+    }
 
     public void addOneToTotalCallsNumber() {
         kpisInfoData.addOneToTotalCallsNumber();
@@ -30,17 +34,15 @@ public class KpisInfoProcessor {
 
     public void addOriginsCode(int originsCode) {
         differentOriginsSet.add(originsCode);
-        kpisInfoData.setDifferentOriginsNumber( differentOriginsSet.size() );
+        kpisInfoData.setDifferentOriginsNumber(differentOriginsSet.size());
     }
 
     public void addDestinationsCode(int destinationsCode) {
         differentDestinationsSet.add(destinationsCode);
-        kpisInfoData.setDifferentDestinationsNumber( differentDestinationsSet.size() );
+        kpisInfoData.setDifferentDestinationsNumber(differentDestinationsSet.size());
     }
 
-    public void processAverageDuration() {    // TODO
-        // algorithm of averiging;
+    public void addJsonProcessingDuration(long processingDuration) {
+        kpisInfoData.addJsonProcessingDuration(processingDuration);
     }
-
-
 }

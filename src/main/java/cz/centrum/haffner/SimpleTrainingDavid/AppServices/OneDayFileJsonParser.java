@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +45,8 @@ public class OneDayFileJsonParser {
 
             // row by row data (jsons) processing
             while ((fileLine = br.readLine()) != null) {
+                Instant startingJsonProcess = Instant.now();
+
                 Map<String, Object> jsonMap = new HashMap<String, Object>();
                 // converts JSON to Map
                 jsonMap = objectMapper.readValue(fileLine, new TypeReference<Map<String, Object>>(){});
@@ -133,6 +137,17 @@ public class OneDayFileJsonParser {
                     kpisInfoProcessor.addOriginsCode(originCountryCode);}
                 if (destinationCountryCode >0) {                            // value of -1 or 0 means invalid code
                     kpisInfoProcessor.addDestinationsCode(destinationCountryCode);}
+
+                // TODO (final delete): sleeping block for debugging proposes only
+                try {
+                    Thread.sleep(50);
+                } catch(InterruptedException ex){
+                    // do stuff
+                }
+
+                Instant endingJsonProcess = Instant.now();
+                kpisInfoProcessor.addJsonProcessingDuration(
+                        Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
             }
             kpisInfoProcessor.addOneToProcessedFilesNumber();
 
