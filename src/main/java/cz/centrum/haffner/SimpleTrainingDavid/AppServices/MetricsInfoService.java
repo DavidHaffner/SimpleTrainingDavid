@@ -21,6 +21,6 @@ public class MetricsInfoService {
         String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";
         File oneDayFile = new File(filePath);
 
-        return oneDayFileJsonsParser.parseOneDayFile(oneDayFile);
+        return oneDayFileJsonsParser.process(oneDayFile);
     }
 }

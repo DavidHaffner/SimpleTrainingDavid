@@ -15,7 +15,7 @@ public class CountryCodeMap {
         countryCodes.put("34","Spain");
         countryCodes.put("49","Germany");
         countryCodes.put("44","United Kingdom");
-        // there are no completed country codes there
+        // there are no completed country codes here
     }
 
     // put & remove method?

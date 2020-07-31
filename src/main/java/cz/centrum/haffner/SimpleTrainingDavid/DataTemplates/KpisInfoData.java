@@ -2,8 +2,10 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 // singleton containing global service operations counters
 @Component
@@ -13,25 +15,53 @@ public class KpisInfoData {
     private int totalRowsNumber =0;                // Total number of rows
     private int totalCallsNumber =0;               // Total number of calls
     private int totalMessagesNumber =0;            // Total number of messages
-    private int differentOriginsNumber =0;         // Total number of different origin country codes
-    private int differentDestinationsNumber =0;    // Total number of different destination country codes
-    private List jsonProcessingDurationList = new LinkedList<Long>();     // Duration of each JSON process
+    private Set<Integer> differentOriginCodesSet = new HashSet<>();  // Total number of different origin country codes
+    private Set<Integer> differentDestinationCodesSet = new HashSet<>(); // Total number of different destination country codes
+    private List<Long> jsonProcessingDurationList = new LinkedList<>();  // Duration of each JSON process
 
 
-    public void addOneToProcessedFilesNumber() {
-        this.processedFilesNumber ++;
+    // increment by 1
+    public void incrementProcessedFilesNumber() {
+        incrementProcessedFilesNumber(1);
+    }
+    // increment by n
+    public void incrementProcessedFilesNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            processedFilesNumber += amountToAdd;
+        }
     }
 
-    public void addOneToTotalRowsNumber() {
-        this.totalRowsNumber ++;
+    // increment by 1
+    public void incrementTotalRowsNumber() {
+        incrementTotalRowsNumber(1);
+    }
+    // increment by n
+    public void incrementTotalRowsNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalRowsNumber += amountToAdd;
+        }
     }
 
-    public void addOneToTotalCallsNumber() {
-        this.totalCallsNumber ++;
+    // increment by 1
+    public void incrementTotalCallsNumber() {
+        incrementTotalCallsNumber(1);
+    }
+    // increment by n
+    public void incrementTotalCallsNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalCallsNumber += amountToAdd;
+        }
     }
 
-    public void addOneToTotalMessagesNumber() {
-        this.totalMessagesNumber ++;
+    // increment by 1
+    public void incrementTotalMessagesNumber() {
+        incrementTotalMessagesNumber(1);
+    }
+    // increment by n
+    public void incrementTotalMessagesNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalMessagesNumber += amountToAdd;
+        }
     }
 
 
@@ -69,20 +99,20 @@ public class KpisInfoData {
         this.totalMessagesNumber = totalMessagesNumber;
     }
 
-    public int getDifferentOriginsNumber() {
-        return differentOriginsNumber;
+    public void addDifferentOriginCodesSet (int originCode) {
+        this.differentOriginCodesSet.add(originCode);
     }
 
-    public void setDifferentOriginsNumber(int differentOriginsNumber) {
-        this.differentOriginsNumber = differentOriginsNumber;
+    public int getDifferentOriginCodesNumber () {
+        return this.differentOriginCodesSet.size();
     }
 
-    public int getDifferentDestinationsNumber() {
-        return differentDestinationsNumber;
+    public void addDifferentDestinationCodesSet (int destinationCode) {
+        this.differentDestinationCodesSet.add(destinationCode);
     }
 
-    public void setDifferentDestinationsNumber(int differentDestinationsNumber) {
-        this.differentDestinationsNumber = differentDestinationsNumber;
+    public int getDifferentDestinationCodesNumber () {
+        return this.differentDestinationCodesSet.size();
     }
 
     public List getLastTenProcessingDurations() {

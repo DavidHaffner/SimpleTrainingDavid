@@ -2,40 +2,96 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
 import org.springframework.stereotype.Component;
 
-@Component
+import java.util.HashMap;
+import java.util.Map;
+
 public class MetricsInfoData {
 
     private int missingFieldsRowsCounter =0;        // Number of rows with missing fields
     private int blankContentMessagesCounter =0;     // Number of messages with blank content
     private int fieldsErrorsRowsCounter =0;        // Number of rows with fields errors
-    private int groupedCallsCounter =0;            // Number of calls TODO: origin/destination grouped by country code
+    private Map<Integer, Integer> groupedCallsOriginCounter = new HashMap();  // Number of calls origin grouped by country code
+    private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
     private float koToOkRatio =0.0f;               // Relationship between OK/KO calls
     private float averageCallDuration =0.0f;            // Average call duration TODO: grouped by country code
     private String givenWordsRanking ="UNDER CONSTRUCTION YET";  // TODO: Word occurrence ranking for the given words in message
 
-
-    public void addOneToMissingFieldsRowsCounter() {
-        this.missingFieldsRowsCounter ++;
+    // increment by 1
+    public void incrementMissingFieldsRowsCounter() {
+        incrementMissingFieldsRowsCounter(1);
+    }
+    // increment by 1
+    public void incrementMissingFieldsRowsCounter(int amountToAdd) {
+        if (amountToAdd >0) {
+            missingFieldsRowsCounter += amountToAdd;
+        }
     }
 
-    public void addOneToBlankContentMessagesCounter() {
-        this.blankContentMessagesCounter ++;
+    // increment by 1
+    public void incrementBlankContentMessagesCounter() {
+        incrementBlankContentMessagesCounter(1);
+    }
+    // increment by n
+    public void incrementBlankContentMessagesCounter(int amountToAdd) {
+        if (amountToAdd >0) {
+            blankContentMessagesCounter += amountToAdd;
+        }
     }
 
-    public void addOneToFieldsErrorsRowsCounter() {
-        this.fieldsErrorsRowsCounter ++;
+
+    // increment by 1
+    public void incrementFieldsErrorsRowsCounter() {
+        incrementFieldsErrorsRowsCounter(1);
+    }
+    // increment by n
+    public void incrementFieldsErrorsRowsCounter(int amountToAdd) {
+        if (amountToAdd >0) {
+            fieldsErrorsRowsCounter += amountToAdd;
+        }
     }
 
-    public void addOneToGroupedCallsCounter() {
-        this.groupedCallsCounter ++;
+    // increment by 1
+    public void incrementGroupedCallsOriginCounter(int countryCode) {
+        incrementGroupedCallsOriginCounter(countryCode, 1);
+    }
+    // increment by n
+    public void incrementGroupedCallsOriginCounter(int countryCode, int amountToAdd) {
+        if (amountToAdd >0) {
+            groupedCallsOriginCounter.merge(countryCode, amountToAdd, (v1, v2) -> v1 + v2);
+        }
     }
 
-    public void addOneToKoToOkRatio() {
-        this.koToOkRatio ++;
+    // increment by 1
+    public void incrementGroupedCallsDestinationCounter(int countryCode) {
+        incrementGroupedCallsDestinationCounter(countryCode, 1);
+    }
+    // increment by n
+    public void incrementGroupedCallsDestinationCounter(int countryCode, int amountToAdd) {
+        if (amountToAdd >0) {
+            groupedCallsDestinationCounter.merge(countryCode, amountToAdd, (v1, v2) -> v1 + v2);
+        }
     }
 
-    public void addOneToAverageCallDuration() {
-        this.averageCallDuration ++;
+    // increment by 1
+    public void incrementKoToOkRatio() {
+        incrementKoToOkRatio(1);
+    }
+    // increment by n
+    public void incrementKoToOkRatio(int amountToAdd) {
+        if (amountToAdd >0) {
+            koToOkRatio += amountToAdd;
+        }
+    }
+
+    // increment by 1
+    public void incrementAverageCallDuration() {
+        incrementAverageCallDuration(1);
+    }
+    // increment by n
+    public void incrementAverageCallDuration(int amountToAdd) {
+        if (amountToAdd >0) {
+            averageCallDuration += amountToAdd;
+        }
     }
 
 
@@ -64,12 +120,12 @@ public class MetricsInfoData {
         this.fieldsErrorsRowsCounter = fieldsErrorsRowsCounter;
     }
 
-    public int getGroupedCallsCounter() {
-        return groupedCallsCounter;
+    public Map getGroupedCallsOriginCounter() {
+        return groupedCallsOriginCounter;
     }
 
-    public void setGroupedCallsCounter(int groupedCallsCounter) {
-        this.groupedCallsCounter = groupedCallsCounter;
+    public Map getGroupedCallsDestinationCounter() {
+        return groupedCallsDestinationCounter;
     }
 
     public float getKoToOkRatio() {
