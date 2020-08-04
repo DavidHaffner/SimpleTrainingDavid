@@ -1,7 +1,5 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,14 +11,14 @@ public class MetricsInfoData {
     private Map<Integer, Integer> groupedCallsOriginCounter = new HashMap();  // Number of calls origin grouped by country code
     private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
     private float koToOkRatio =0.0f;               // Relationship between OK/KO calls
-    private float averageCallDuration =0.0f;            // Average call duration TODO: grouped by country code
-    private String givenWordsRanking ="UNDER CONSTRUCTION YET";  // TODO: Word occurrence ranking for the given words in message
+    private Map<Integer, Float> groupedAverageCallDuration = new HashMap();   // Average call duration grouped by country code
+    private float givenWordsRanking =0.0f;          // Word occurrence ranking for the given words in message
 
     // increment by 1
     public void incrementMissingFieldsRowsCounter() {
         incrementMissingFieldsRowsCounter(1);
     }
-    // increment by 1
+    // increment by n
     public void incrementMissingFieldsRowsCounter(int amountToAdd) {
         if (amountToAdd >0) {
             missingFieldsRowsCounter += amountToAdd;
@@ -72,29 +70,6 @@ public class MetricsInfoData {
         }
     }
 
-    // increment by 1
-    public void incrementKoToOkRatio() {
-        incrementKoToOkRatio(1);
-    }
-    // increment by n
-    public void incrementKoToOkRatio(int amountToAdd) {
-        if (amountToAdd >0) {
-            koToOkRatio += amountToAdd;
-        }
-    }
-
-    // increment by 1
-    public void incrementAverageCallDuration() {
-        incrementAverageCallDuration(1);
-    }
-    // increment by n
-    public void incrementAverageCallDuration(int amountToAdd) {
-        if (amountToAdd >0) {
-            averageCallDuration += amountToAdd;
-        }
-    }
-
-
     // getters & setters
     public int getMissingFieldsRowsCounter() {
         return missingFieldsRowsCounter;
@@ -136,19 +111,24 @@ public class MetricsInfoData {
         this.koToOkRatio = koToOkRatio;
     }
 
-    public float getAverageCallDuration() {
-        return averageCallDuration;
+    public Map<Integer, Float> getGroupedAverageCallDuration() {
+        return groupedAverageCallDuration;
     }
 
-    public void setAverageCallDuration(float averageCallDuration) {
-        this.averageCallDuration = averageCallDuration;
+    public float getAverageCallDurationOfCC(int countryCode) {
+        return ( groupedAverageCallDuration.get(countryCode) == null ?
+                0.0f : groupedAverageCallDuration.get(countryCode) );
     }
 
-    public String getGivenWordsRanking() {
+    public void setAverageCallDurationOfCC(int countryCode, float newAverageCallDuration) {
+        groupedAverageCallDuration.put(countryCode, newAverageCallDuration);
+    }
+
+    public float getGivenWordsRanking() {
         return givenWordsRanking;
     }
 
-    public void setGivenWordsRanking(String givenWordsRanking) {
+    public void setGivenWordsRanking(float givenWordsRanking) {
         this.givenWordsRanking = givenWordsRanking;
     }
 }

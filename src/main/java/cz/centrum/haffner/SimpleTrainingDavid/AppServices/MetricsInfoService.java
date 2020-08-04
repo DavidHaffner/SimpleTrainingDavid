@@ -9,9 +9,8 @@ import java.io.File;
 // algorithm for returning of the proper MetricsInfo data
 @Service
 public class MetricsInfoService {
-    // private static final String FILE_PATH = "https://github.com/DavidHaffner/SimpleTrainingDavid/tree/dev/logs/MCP_20180131.json";
-    private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getClassLoader()
-                                                        .getResource("MCPData/").getPath();
+    private static final String FILE_PATH_PREFIX = "C:/Users/David Haffner/IdeaProjects/SimpleTrainingDavid/target/classes/MCPData/";
+    // private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
     @Autowired
     private OneDayFileJsonParser oneDayFileJsonsParser;
 

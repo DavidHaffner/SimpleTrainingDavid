@@ -19,12 +19,12 @@ import java.util.Map;
 @Component
 public class OneDayFileJsonParser {
 
-
-
     @Autowired
     private KpisInfoData kpisInfoData;
     @Autowired
     private CountryCodeExtractor countryCodeExtractor;
+    @Autowired
+    private GivenWordsMonitor givenWordsMonitor;
 
     private MetricsInfoData metricsInfoData;
 
@@ -35,6 +35,8 @@ public class OneDayFileJsonParser {
 
         // local one file counters
         int callsCounter = 0;
+        int oneFileSmsCounter = 0;
+        int smsWithGivenWordsCounter = 0;
         int okCallsCounter = 0;
         int koCallsCounter = 0;
 
@@ -91,11 +93,12 @@ public class OneDayFileJsonParser {
                     if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter ++;}
                     if ( "KO".equals(jsonMap.get("status_code")) ) {koCallsCounter ++;}
 
-                    // average call duration
+                    // average call duration grouped by country code
                     if ( jsonMap.get("duration").getClass() == Integer.class ) {
-                        metricsInfoData.setAverageCallDuration(
-                                ( metricsInfoData.getAverageCallDuration() * callsCounter + (int)jsonMap.get("duration") )
-                                / ++callsCounter );
+                        metricsInfoData.setAverageCallDurationOfCC(originCountryCode,
+                                (metricsInfoData.getAverageCallDurationOfCC(originCountryCode)
+                                        * callsCounter + (int)jsonMap.get("duration") )
+                                        / ++callsCounter );   // TODO: schovat pom. countery (jako private) a výpočet do *Data?
                     }
 
                     kpisInfoData.incrementTotalCallsNumber();
@@ -123,6 +126,13 @@ public class OneDayFileJsonParser {
                             jsonMap.get("message_content").getClass() != String.class ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
                         {metricsInfoData.incrementFieldsErrorsRowsCounter();}
+
+                    // Word occurrence ranking for the given words in message_content field
+                    if ( jsonMap.get("message_content").getClass() == String.class &&
+                            !( "".equals( jsonMap.get("message_content") )) ) {
+                        if (givenWordsMonitor.process( (String)jsonMap.get("message_content") )) { smsWithGivenWordsCounter++; }
+                        oneFileSmsCounter++;
+                    }
 
                     kpisInfoData.incrementTotalMessagesNumber();
 
@@ -152,8 +162,11 @@ public class OneDayFileJsonParser {
             }
             kpisInfoData.incrementProcessedFilesNumber();
 
-            // final mapping
-            metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);  // the share of KO result to OK result
+            // final mapping into metricsInfoData
+                // the share of KO result to OK result
+                metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);
+                // the share of SMS with given words to total amount
+                metricsInfoData.setGivenWordsRanking(smsWithGivenWordsCounter / (float) oneFileSmsCounter);
 
         } catch (IOException e) {
             e.printStackTrace();
