@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 // algorithm for returning of the proper MetricsInfo data
 @Service
 public class MetricsInfoService {
-    //private static final String FILE_PATH_PREFIX = "C:/Users/David Haffner/IdeaProjects/SimpleTrainingDavid/target/classes/MCPData/";
-    private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
+    private static final String FILE_PATH_PREFIX = "https://raw.githubusercontent.com/TomasStesti/simpleTraining/master/logs/";
+    //private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
     @Autowired
     private OneDayFileJsonParserInt oneDayFileJsonsParser;
 
@@ -18,7 +20,13 @@ public class MetricsInfoService {
     public MetricsInfoData processMetricsInfoData(long requestedDate) {
         // get the file of requested date
         String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";
-        File oneDayFile = new File(filePath);
+
+        URL oneDayFile = null;
+        try {
+            oneDayFile = new URL(filePath);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
         return oneDayFileJsonsParser.process(oneDayFile);
     }

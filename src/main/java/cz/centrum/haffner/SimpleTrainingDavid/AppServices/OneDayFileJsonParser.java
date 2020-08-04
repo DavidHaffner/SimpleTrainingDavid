@@ -7,10 +7,8 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -29,7 +27,7 @@ public class OneDayFileJsonParser implements OneDayFileJsonParserInt {
     private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoData process(File inputFile) {
+    public MetricsInfoData process(URL inputUrl) {
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
 
@@ -41,7 +39,7 @@ public class OneDayFileJsonParser implements OneDayFileJsonParserInt {
         int koCallsCounter = 0;
 
         // main process
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+        try ( BufferedReader br = new BufferedReader( new InputStreamReader(inputUrl.openStream()) ) ) {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
