@@ -17,14 +17,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class OneDayFileJsonParser {
+public class OneDayFileJsonParser implements OneDayFileJsonParserInt {
 
     @Autowired
     private KpisInfoData kpisInfoData;
     @Autowired
-    private CountryCodeExtractor countryCodeExtractor;
+    private CountryCodeExtractorInt countryCodeExtractor;
     @Autowired
-    private GivenWordsMonitor givenWordsMonitor;
+    private GivenWordsMonitorInt givenWordsMonitor;
 
     private MetricsInfoData metricsInfoData;
 
@@ -98,7 +98,7 @@ public class OneDayFileJsonParser {
                         metricsInfoData.setAverageCallDurationOfCC(originCountryCode,
                                 (metricsInfoData.getAverageCallDurationOfCC(originCountryCode)
                                         * callsCounter + (int)jsonMap.get("duration") )
-                                        / ++callsCounter );   // TODO: schovat pom. countery (jako private) a výpočet do *Data?
+                                        / ++callsCounter );
                     }
 
                     kpisInfoData.incrementTotalCallsNumber();

@@ -12,7 +12,7 @@ public class MetricsInfoService {
     private static final String FILE_PATH_PREFIX = "C:/Users/David Haffner/IdeaProjects/SimpleTrainingDavid/target/classes/MCPData/";
     // private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
     @Autowired
-    private OneDayFileJsonParser oneDayFileJsonsParser;
+    private OneDayFileJsonParserInt oneDayFileJsonsParser;
 
 
     public MetricsInfoData processMetricsInfoData(long requestedDate) {
