@@ -15,19 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class OneDayFileJsonParser implements OneDayFileJsonParserInt {
+public class OneDayFileJsonParser implements Parser {
 
     @Autowired
     private KpisInfoData kpisInfoData;
     @Autowired
-    private CountryCodeExtractorInt countryCodeExtractor;
+    private Extractor countryCodeExtractor;
     @Autowired
-    private GivenWordsMonitorInt givenWordsMonitor;
+    private Monitor givenWordsMonitor;
 
     private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoData process(URL inputUrl) {
+    public MetricsInfoData parse(URL inputUrl) {
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
 
@@ -52,9 +52,9 @@ public class OneDayFileJsonParser implements OneDayFileJsonParserInt {
                 jsonMap = objectMapper.readValue(fileLine, new TypeReference<Map<String, Object>>(){});
 
                 // get Origins & Destinations country code
-                int originCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("origin") );
+                int originCountryCode = countryCodeExtractor.extract( jsonMap.get("origin") );
                     // ((Number)jsonMap.get("origin")).longValue()
-                int destinationCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("destination") );
+                int destinationCountryCode = countryCodeExtractor.extract( jsonMap.get("destination") );
 
                 // CALL type of file row
                 if ("CALL".equals( jsonMap.get("message_type") )) {

@@ -4,7 +4,6 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,10 +13,10 @@ public class MetricsInfoService {
     private static final String FILE_PATH_PREFIX = "https://raw.githubusercontent.com/TomasStesti/simpleTraining/master/logs/";
     //private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
     @Autowired
-    private OneDayFileJsonParserInt oneDayFileJsonsParser;
+    private Parser oneDayFileJsonsParser;
 
 
-    public MetricsInfoData processMetricsInfoData(long requestedDate) {
+    public MetricsInfoData processData(long requestedDate) {
         // get the file of requested date
         String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";
 
@@ -28,6 +27,6 @@ public class MetricsInfoService {
             e.printStackTrace();
         }
 
-        return oneDayFileJsonsParser.process(oneDayFile);
+        return oneDayFileJsonsParser.parse(oneDayFile);
     }
 }

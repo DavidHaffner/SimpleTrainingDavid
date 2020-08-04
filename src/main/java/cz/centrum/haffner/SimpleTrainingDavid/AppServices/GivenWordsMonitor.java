@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 // this class is monitoring, whether given SMS text contents words from the list
 @Component
-public class GivenWordsMonitor implements GivenWordsMonitorInt {
+public class GivenWordsMonitor implements Monitor {
     @Autowired
     GivenWordsList givenWordsList;
 
