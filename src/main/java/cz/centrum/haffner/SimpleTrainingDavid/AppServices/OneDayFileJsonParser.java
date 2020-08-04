@@ -2,43 +2,59 @@ package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class OneDayFileJsonParser {
 
-    private int callsCounter = 0;
-    private int okCallsCounter = 0;
-    private int koCallsCounter = 0;
+
+
+    @Autowired
+    private KpisInfoData kpisInfoData;
+    @Autowired
+    private CountryCodeExtractor countryCodeExtractor;
 
     private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoData parseOneDayFile (File inputFile) {
+    public MetricsInfoData process(File inputFile) {
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
 
-        // incrementation of parser counters to zero
-        incrementCountersToZeroValues();
+        // local one file counters
+        int callsCounter = 0;
+        int okCallsCounter = 0;
+        int koCallsCounter = 0;
 
-        //
+        // main process
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
             // row by row data (jsons) processing
             while ((fileLine = br.readLine()) != null) {
+                Instant startingJsonProcess = Instant.now();
+
                 Map<String, Object> jsonMap = new HashMap<String, Object>();
                 // converts JSON to Map
                 jsonMap = objectMapper.readValue(fileLine, new TypeReference<Map<String, Object>>(){});
+
+                // get Origins & Destinations country code
+                int originCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("origin") );
+                    // ((Number)jsonMap.get("origin")).longValue()
+                int destinationCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("destination") );
 
                 // CALL type of file row
                 if ("CALL".equals( jsonMap.get("message_type") )) {
@@ -50,16 +66,26 @@ public class OneDayFileJsonParser {
                             "".equals(jsonMap.get("duration")) ||
                             "".equals(jsonMap.get("status_code")) ||
                             "".equals(jsonMap.get("status_description")) )
-                        {metricsInfoData.addOneToMissingFieldsRowsCounter();}
+                        {metricsInfoData.incrementMissingFieldsRowsCounter();}
 
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
                             jsonMap.get("origin").getClass() != Long.class ||
+                            originCountryCode == 0 ||                                   // 0 means CC not found
                             jsonMap.get("destination").getClass() != Long.class ||
+                            destinationCountryCode == 0 ||                              // 0 means CC not found
                             jsonMap.get("duration").getClass() != Integer.class ||
                             !( "OK".equals(jsonMap.get("status_code")) || "KO".equals(jsonMap.get("status_code")) ) ||
                             jsonMap.get("status_description").getClass() != String.class )
-                        {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
+                        {metricsInfoData.incrementFieldsErrorsRowsCounter();}
+
+                    // number of calls origin/destination grouped by country code
+                    if (originCountryCode >0) {
+                        metricsInfoData.incrementGroupedCallsOriginCounter(originCountryCode);
+                    }
+                    if (destinationCountryCode >0) {
+                        metricsInfoData.incrementGroupedCallsDestinationCounter(destinationCountryCode);
+                    }
 
                     // relation between OK/KO calls
                     if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter ++;}
@@ -72,7 +98,9 @@ public class OneDayFileJsonParser {
                                 / ++callsCounter );
                     }
 
-                    // MSG type of file row
+                    kpisInfoData.incrementTotalCallsNumber();
+
+                // MSG type of file row
                 } else if ("MSG".equals( jsonMap.get("message_type") )) {
 
                     // rows with missing fields
@@ -80,41 +108,56 @@ public class OneDayFileJsonParser {
                             "".equals(jsonMap.get("origin")) ||
                             "".equals(jsonMap.get("destination")) ||
                             "".equals(jsonMap.get("message_status")) )
-                        {metricsInfoData.addOneToMissingFieldsRowsCounter();}
+                        {metricsInfoData.incrementMissingFieldsRowsCounter();}
 
                     // messages with blank content
                     if ("".equals(jsonMap.get("message_content")) ) {
-                        metricsInfoData.addOneToBlankContentMessagesCounter();}
+                        metricsInfoData.incrementBlankContentMessagesCounter();}
 
                     // rows with field errors
                     if ( jsonMap.get("timestamp").getClass() != Long.class ||
                             jsonMap.get("origin").getClass() != Long.class ||
+                            originCountryCode == 0 ||                                   // 0 means CC not found
                             jsonMap.get("destination").getClass() != Long.class ||
+                            destinationCountryCode == 0 ||                              // 0 means CC not found
                             jsonMap.get("message_content").getClass() != String.class ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
-                        {metricsInfoData.addOneToFieldsErrorsRowsCounter();}
+                        {metricsInfoData.incrementFieldsErrorsRowsCounter();}
+
+                    kpisInfoData.incrementTotalMessagesNumber();
 
                 } else if ("".equals( jsonMap.get("message_type") )){
-                    metricsInfoData.addOneToMissingFieldsRowsCounter();
+                    metricsInfoData.incrementMissingFieldsRowsCounter();
                 } else {
                     // field error in message_type
-                    metricsInfoData.addOneToFieldsErrorsRowsCounter();
+                    metricsInfoData.incrementFieldsErrorsRowsCounter();
                 }
+
+                kpisInfoData.incrementTotalRowsNumber();
+                if (originCountryCode >0) {                                 // value of -1 or 0 means invalid code
+                    kpisInfoData.addDifferentOriginCodesSet(originCountryCode);}
+                if (destinationCountryCode >0) {                            // value of -1 or 0 means invalid code
+                    kpisInfoData.addDifferentDestinationCodesSet(destinationCountryCode);}
+
+                // TODO (final delete): sleeping block for debugging proposes only
+                try {
+                    Thread.sleep(50);
+                } catch(InterruptedException ex){
+                    // do stuff
+                }
+
+                Instant endingJsonProcess = Instant.now();
+                kpisInfoData.addJsonProcessingDuration(
+                        Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
             }
+            kpisInfoData.incrementProcessedFilesNumber();
 
             // final mapping
-            metricsInfoData.setGroupedCallsCounter(callsCounter);  // TODO: temporary solution
             metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);  // the share of KO result to OK result
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return metricsInfoData;
-    }
-
-    public void incrementCountersToZeroValues() {
-        this.callsCounter = 0;
-        this.okCallsCounter = 0;
-        this.koCallsCounter = 0;
     }
 }

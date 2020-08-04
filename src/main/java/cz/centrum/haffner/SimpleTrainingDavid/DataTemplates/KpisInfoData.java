@@ -1,79 +1,137 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
+import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+// singleton containing global service operations counters
+@Component
 public class KpisInfoData {
 
-    // TODO: rename variables, getters and setters
-    private int a;           // Total number of processed JSON files
-    private int b;           // Total number of rows
-    private int c;           // Total number of calls
-    private int d;           // Total number of messages
-    private int e;           // Total number of different origin country codes
-    private int f;           // Total number of different destination country codes
-    private int g;           // Duration of each JSON process
+    private int processedFilesNumber =0;           // Total number of processed JSON files
+    private int totalRowsNumber =0;                // Total number of rows
+    private int totalCallsNumber =0;               // Total number of calls
+    private int totalMessagesNumber =0;            // Total number of messages
+    private Set<Integer> differentOriginCodesSet = new HashSet<>();  // Total number of different origin country codes
+    private Set<Integer> differentDestinationCodesSet = new HashSet<>(); // Total number of different destination country codes
+    private List<Long> jsonProcessingDurationList = new LinkedList<>();  // Duration of each JSON process
 
-    public KpisInfoData(int a, int b, int c, int d, int e, int f, int g) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-        this.e = e;
-        this.f = f;
-        this.g = g;
+
+    // increment by 1
+    public void incrementProcessedFilesNumber() {
+        incrementProcessedFilesNumber(1);
+    }
+    // increment by n
+    public void incrementProcessedFilesNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            processedFilesNumber += amountToAdd;
+        }
     }
 
-    public int getA() {
-        return a;
+    // increment by 1
+    public void incrementTotalRowsNumber() {
+        incrementTotalRowsNumber(1);
+    }
+    // increment by n
+    public void incrementTotalRowsNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalRowsNumber += amountToAdd;
+        }
     }
 
-    public void setA(int a) {
-        this.a = a;
+    // increment by 1
+    public void incrementTotalCallsNumber() {
+        incrementTotalCallsNumber(1);
+    }
+    // increment by n
+    public void incrementTotalCallsNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalCallsNumber += amountToAdd;
+        }
     }
 
-    public int getB() {
-        return b;
+    // increment by 1
+    public void incrementTotalMessagesNumber() {
+        incrementTotalMessagesNumber(1);
+    }
+    // increment by n
+    public void incrementTotalMessagesNumber(int amountToAdd) {
+        if (amountToAdd >0) {
+            totalMessagesNumber += amountToAdd;
+        }
     }
 
-    public void setB(int b) {
-        this.b = b;
+
+
+    // getters & setters
+    public int getProcessedFilesNumber() {
+        return processedFilesNumber;
     }
 
-    public int getC() {
-        return c;
+    public void setProcessedFilesNumber(int processedFilesNumber) {
+        this.processedFilesNumber = processedFilesNumber;
     }
 
-    public void setC(int c) {
-        this.c = c;
+    public int getTotalRowsNumber() {
+        return totalRowsNumber;
     }
 
-    public int getD() {
-        return d;
+    public void setTotalRowsNumber(int totalRowsNumber) {
+        this.totalRowsNumber = totalRowsNumber;
     }
 
-    public void setD(int d) {
-        this.d = d;
+    public int getTotalCallsNumber() {
+        return totalCallsNumber;
     }
 
-    public int getE() {
-        return e;
+    public void setTotalCallsNumber(int totalCallsNumber) {
+        this.totalCallsNumber = totalCallsNumber;
     }
 
-    public void setE(int e) {
-        this.e = e;
+    public int getTotalMessagesNumber() {
+        return totalMessagesNumber;
     }
 
-    public int getF() {
-        return f;
+    public void setTotalMessagesNumber(int totalMessagesNumber) {
+        this.totalMessagesNumber = totalMessagesNumber;
     }
 
-    public void setF(int f) {
-        this.f = f;
+    public void addDifferentOriginCodesSet (int originCode) {
+        this.differentOriginCodesSet.add(originCode);
     }
 
-    public int getG() {
-        return g;
+    public int getDifferentOriginCodesNumber () {
+        return this.differentOriginCodesSet.size();
     }
 
-    public void setG(int g) {
-        this.g = g;
+    public void addDifferentDestinationCodesSet (int destinationCode) {
+        this.differentDestinationCodesSet.add(destinationCode);
     }
+
+    public int getDifferentDestinationCodesNumber () {
+        return this.differentDestinationCodesSet.size();
+    }
+
+    public List getLastTenProcessingDurations() {
+        int listSize = jsonProcessingDurationList.size();
+        if ( listSize <11 ) {
+            return jsonProcessingDurationList;
+        } else {
+            // last 10 elements
+            List lastTenElements = new LinkedList();
+            for (int i=1; i<11 ; i++) {
+               lastTenElements.add( jsonProcessingDurationList.get(listSize-i) );
+            }
+
+            return lastTenElements;
+        }
+    }
+
+    public void addJsonProcessingDuration(long processingDuration) {
+        this.jsonProcessingDurationList.add(processingDuration);
+    }
+
 }
