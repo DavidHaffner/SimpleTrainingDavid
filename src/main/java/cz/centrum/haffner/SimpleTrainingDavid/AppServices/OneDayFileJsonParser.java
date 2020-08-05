@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +15,13 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 @Component
 public class OneDayFileJsonParser implements Parser {
+
+    private static Logger logger = LogManager.getLogger(OneDayFileJsonParser.class);
 
     @Autowired
     private KpisInfoData kpisInfoData;
@@ -40,6 +46,10 @@ public class OneDayFileJsonParser implements Parser {
         try ( BufferedReader br = new BufferedReader( new InputStreamReader(inputUrl.openStream()) ) ) {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
+
+            if(logger.isDebugEnabled()) {
+                logger.debug("Starting of one day file processing... ");
+            }
 
             // row by row data (jsons) processing
             while ((fileLine = br.readLine()) != null) {
@@ -164,6 +174,12 @@ public class OneDayFileJsonParser implements Parser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if(logger.isDebugEnabled()) {
+            logger.debug("Ending of one day file processing...");
+        }
+
+        // TODO: implement kafka producer
+
         return metricsInfoData;
     }
 
