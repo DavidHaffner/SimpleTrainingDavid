@@ -12,7 +12,7 @@ public class MetricsInfoData {
     private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
     private float koToOkRatio =0.0f;               // Relationship between OK/KO calls
     private Map<Integer, Float> groupedAverageCallDuration = new HashMap();   // Average call duration grouped by country code
-    private float givenWordsRanking =0.0f;          // Word occurrence ranking for the given words in message
+    private Map<String, Integer> givenWordsRanking = new HashMap();   // Word occurrence ranking for the given words in message
 
     // increment by 1
     public void incrementMissingFieldsRowsCounter() {
@@ -70,6 +70,17 @@ public class MetricsInfoData {
         }
     }
 
+    // increment by 1
+    public void incrementGivenWordsRanking(String word) {
+        incrementGivenWordsRanking(word, 1);
+    }
+    // increment by n
+    public void incrementGivenWordsRanking(String word, int amountToAdd) {
+        if (amountToAdd >0) {
+            givenWordsRanking.merge(word, amountToAdd, (v1, v2) -> v1 + v2);
+        }
+    }
+
     // getters & setters
     public int getMissingFieldsRowsCounter() {
         return missingFieldsRowsCounter;
@@ -124,11 +135,7 @@ public class MetricsInfoData {
         groupedAverageCallDuration.put(countryCode, newAverageCallDuration);
     }
 
-    public float getGivenWordsRanking() {
+    public Map<String, Integer> getGivenWordsRanking() {
         return givenWordsRanking;
-    }
-
-    public void setGivenWordsRanking(float givenWordsRanking) {
-        this.givenWordsRanking = givenWordsRanking;
     }
 }

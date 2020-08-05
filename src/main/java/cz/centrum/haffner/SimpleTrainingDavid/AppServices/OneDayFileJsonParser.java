@@ -33,8 +33,6 @@ public class OneDayFileJsonParser implements Parser {
 
         // local one file counters
         int callsCounter = 0;
-        int oneFileSmsCounter = 0;
-        int smsWithGivenWordsCounter = 0;
         int okCallsCounter = 0;
         int koCallsCounter = 0;
 
@@ -128,8 +126,7 @@ public class OneDayFileJsonParser implements Parser {
                     // Word occurrence ranking for the given words in message_content field
                     if ( jsonMap.get("message_content").getClass() == String.class &&
                             !( "".equals( jsonMap.get("message_content") )) ) {
-                        if (givenWordsMonitor.process( (String)jsonMap.get("message_content") )) { smsWithGivenWordsCounter++; }
-                        oneFileSmsCounter++;
+                        processWordOccurrenceRanking( (String)jsonMap.get("message_content") );
                     }
 
                     kpisInfoData.incrementTotalMessagesNumber();
@@ -163,12 +160,17 @@ public class OneDayFileJsonParser implements Parser {
             // final mapping into metricsInfoData
                 // the share of KO result to OK result
                 metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);
-                // the share of SMS with given words to total amount
-                metricsInfoData.setGivenWordsRanking(smsWithGivenWordsCounter / (float) oneFileSmsCounter);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return metricsInfoData;
     }
+
+    private void processWordOccurrenceRanking (String smsText) {
+        for (String particularWord : smsText.split(" ") ) {
+            metricsInfoData.incrementGivenWordsRanking(particularWord);
+        }
+    }
+
 }

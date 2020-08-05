@@ -1,21 +1,16 @@
 package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
-import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.GivenWordsList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-// this class is monitoring, whether given SMS text contents words from the list
+// TODO (delete): use this component, or rather delegate this process to a method in OneDayFileJsonParser) ?
+// this class is processing the split of sms text into word ranking map
 @Component
 public class GivenWordsMonitor implements Monitor {
-    @Autowired
-    GivenWordsList givenWordsList;
 
-    public boolean process(String smsText) {
-        for ( String keyWord : givenWordsList.getGivenWords() ) {
-            if ( smsText.contains(keyWord) ) { return true;}
+    public void process(String smsText) {
+        for (String particularWord : smsText.split(" ") ) {
+            // set particular words into givenWordsRanking map
         }
-        return false;
-
-        // givenWordsList.getGivenWords().stream().forEach( word -> smsText.contains(word) );
     }
 }
