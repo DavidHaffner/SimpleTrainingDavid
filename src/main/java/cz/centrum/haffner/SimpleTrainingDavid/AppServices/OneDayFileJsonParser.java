@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
 import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,8 @@ public class OneDayFileJsonParser implements Parser {
     private Extractor countryCodeExtractor;
     @Autowired
     private Monitor givenWordsMonitor;
+    @Autowired
+    private KafkaSimpleProducer kafkaSimpleProducer;
 
     private MetricsInfoData metricsInfoData;
 
@@ -47,8 +50,8 @@ public class OneDayFileJsonParser implements Parser {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
-            if(logger.isDebugEnabled()) {
-                logger.debug("Starting of one day file processing... ");
+            if(logger.isInfoEnabled()) {
+                logger.info("Starting of one day file processing... ");
             }
 
             // row by row data (jsons) processing
@@ -174,11 +177,17 @@ public class OneDayFileJsonParser implements Parser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(logger.isDebugEnabled()) {
-            logger.debug("Ending of one day file processing...");
+        if(logger.isInfoEnabled()) {
+            logger.info("Ending of one day file processing...");
         }
 
-        // TODO: implement kafka producer
+        // implementing of kafka producer -> simulates producing into the topic in param
+        try {
+            kafkaSimpleProducer.produceToTopic("myTopic");
+        } catch (Exception e) {
+            // TODO: logging into separate error log
+            e.printStackTrace();
+        }
 
         return metricsInfoData;
     }
