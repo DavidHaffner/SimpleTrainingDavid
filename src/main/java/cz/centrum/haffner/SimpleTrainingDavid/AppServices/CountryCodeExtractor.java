@@ -1,6 +1,8 @@
 package cz.centrum.haffner.SimpleTrainingDavid.AppServices;
 
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.CountryCodeMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,7 @@ public class CountryCodeExtractor implements Extractor {
 
     // extracts country code from MSISDN
     public int extract(Object msisdn) {
+
         if ( "".equals(msisdn) ) {
             return -1;   // the code for missing value
         } else {

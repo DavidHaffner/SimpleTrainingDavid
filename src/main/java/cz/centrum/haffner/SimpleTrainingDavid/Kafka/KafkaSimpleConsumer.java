@@ -13,9 +13,13 @@ import org.springframework.stereotype.Component;
 // this class simulates the role of Consumer from Kafka Topic / system
 @Component
 public class KafkaSimpleConsumer {
-    private static Logger logger = LogManager.getLogger(KafkaSimpleConsumer.class);
+    private static final Logger logger = LogManager.getLogger(KafkaSimpleConsumer.class);
 
     public static void consumeFromTopic(String topicName) throws Exception {
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting to consume from topic: " + topicName);
+        }
 
         // create instance for properties to access producer configs
         Properties props = new Properties();

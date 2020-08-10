@@ -21,15 +21,12 @@ import org.apache.logging.log4j.LogManager;
 
 @Component
 public class OneDayFileJsonParser implements Parser {
-
-    private static Logger logger = LogManager.getLogger(OneDayFileJsonParser.class);
+    private static final Logger logger = LogManager.getLogger(OneDayFileJsonParser.class);
 
     @Autowired
     private KpisInfoData kpisInfoData;
     @Autowired
     private Extractor countryCodeExtractor;
-    @Autowired
-    private Monitor givenWordsMonitor;
     @Autowired
     private KafkaSimpleProducer kafkaSimpleProducer;
     @Autowired
@@ -39,6 +36,10 @@ public class OneDayFileJsonParser implements Parser {
 
 
     public MetricsInfoData parse(URL inputUrl) {
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting to parse.");
+        }
+
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
 
@@ -52,8 +53,8 @@ public class OneDayFileJsonParser implements Parser {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
-            if(logger.isInfoEnabled()) {
-                logger.info("Starting of one day file processing... ");
+            if(logger.isDebugEnabled()) {
+                logger.debug("Starting of one day file processing.");
             }
 
             // row by row data (jsons) processing
@@ -159,16 +160,20 @@ public class OneDayFileJsonParser implements Parser {
                 if (destinationCountryCode >0) {                            // value of -1 or 0 means invalid code
                     kpisInfoData.addDifferentDestinationCodesSet(destinationCountryCode);}
 
-                // TODO (final delete): sleeping block for debugging proposes only
+                // sleeping block for higher visibility of particular processes duration
                 try {
                     Thread.sleep(50);
                 } catch(InterruptedException ex){
-                    // do stuff
+                    logger.error(ex.getMessage(), ex);
                 }
 
                 Instant endingJsonProcess = Instant.now();
                 kpisInfoData.addJsonProcessingDuration(
                         Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
+
+                if(logger.isDebugEnabled()) {
+                    logger.debug("Successfully finished processing of row no: " + kpisInfoData.getTotalRowsNumber());
+                }
             }
             kpisInfoData.incrementProcessedFilesNumber();
 
@@ -177,25 +182,27 @@ public class OneDayFileJsonParser implements Parser {
                 metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
-        if(logger.isInfoEnabled()) {
-            logger.info("Ending of one day file processing...");
+        if(logger.isDebugEnabled()) {
+            logger.debug("Ending of one day file processing.");
         }
 
         // implementing of kafka producer -> simulates producing into the topic in param
         try {
             kafkaSimpleProducer.produceToTopic("myTopic");
         } catch (Exception e) {
-            // TODO: logging into separate error log
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         // implementing of kafka consumer -> simulates consuming back from the topic in param
         try {
             kafkaSimpleConsumer.consumeFromTopic("myTopic");
         } catch (Exception e) {
-            // TODO: logging into separate error log
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
+        }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Ending to parse and returning Metrics data.");
         }
 
         return metricsInfoData;

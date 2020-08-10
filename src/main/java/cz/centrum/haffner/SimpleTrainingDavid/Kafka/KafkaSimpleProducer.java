@@ -13,9 +13,13 @@ import org.springframework.stereotype.Component;
 // this class simulates the role of Producer into Kafka Topic / system
 @Component
 public class KafkaSimpleProducer {
-    private static Logger logger = LogManager.getLogger(KafkaSimpleProducer.class);
+    private static final Logger logger = LogManager.getLogger(KafkaSimpleProducer.class);
 
     public static void produceToTopic(String topicName) throws Exception{
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting to produce to topic: " + topicName);
+        }
 
         // create instance for properties to access producer configs
         Properties props = new Properties();
