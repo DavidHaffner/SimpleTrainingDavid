@@ -44,6 +44,7 @@ public class OneDayFileJsonParser implements Parser {
         metricsInfoData = new MetricsInfoData();
 
         // local one file counters
+        int rowsCounter = 0;
         int callsCounter = 0;
         int okCallsCounter = 0;
         int koCallsCounter = 0;
@@ -171,8 +172,9 @@ public class OneDayFileJsonParser implements Parser {
                 kpisInfoData.addJsonProcessingDuration(
                         Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
 
+                rowsCounter++;
                 if(logger.isDebugEnabled()) {
-                    logger.debug("Successfully finished processing of row no: " + kpisInfoData.getTotalRowsNumber());
+                    logger.debug("Successfully finished processing of row no: " + rowsCounter);
                 }
             }
             kpisInfoData.incrementProcessedFilesNumber();
@@ -188,6 +190,7 @@ public class OneDayFileJsonParser implements Parser {
             logger.debug("Ending of one day file processing.");
         }
 
+        /*
         // implementing of kafka producer -> simulates producing into the topic in param
         try {
             kafkaSimpleProducer.produceToTopic("myTopic");
@@ -200,6 +203,8 @@ public class OneDayFileJsonParser implements Parser {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
+
+         */
 
         if(logger.isDebugEnabled()) {
             logger.debug("Ending to parse and returning Metrics data.");
