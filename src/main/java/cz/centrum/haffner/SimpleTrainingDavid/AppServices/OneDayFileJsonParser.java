@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleConsumer;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
-import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +32,8 @@ public class OneDayFileJsonParser implements Parser {
     private Monitor givenWordsMonitor;
     @Autowired
     private KafkaSimpleProducer kafkaSimpleProducer;
+    @Autowired
+    private KafkaSimpleConsumer kafkaSimpleConsumer;
 
     private MetricsInfoData metricsInfoData;
 
@@ -184,6 +186,13 @@ public class OneDayFileJsonParser implements Parser {
         // implementing of kafka producer -> simulates producing into the topic in param
         try {
             kafkaSimpleProducer.produceToTopic("myTopic");
+        } catch (Exception e) {
+            // TODO: logging into separate error log
+            e.printStackTrace();
+        }
+        // implementing of kafka consumer -> simulates consuming back from the topic in param
+        try {
+            kafkaSimpleConsumer.consumeFromTopic("myTopic");
         } catch (Exception e) {
             // TODO: logging into separate error log
             e.printStackTrace();
