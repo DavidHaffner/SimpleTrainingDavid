@@ -190,7 +190,6 @@ public class OneDayFileJsonParser implements Parser {
             logger.debug("Ending of one day file processing.");
         }
 
-        /*
         // implementing of kafka producer -> simulates producing into the topic in param
         try {
             kafkaSimpleProducer.produceToTopic("myTopic");
@@ -203,8 +202,6 @@ public class OneDayFileJsonParser implements Parser {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
-         */
 
         if(logger.isDebugEnabled()) {
             logger.debug("Ending to parse and returning Metrics data.");
