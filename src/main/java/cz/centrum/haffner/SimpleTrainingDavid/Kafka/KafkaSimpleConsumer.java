@@ -53,5 +53,7 @@ public class KafkaSimpleConsumer {
 
             if (records.partitions().size() != 0) { haveNewRecords = true; }
         }
+
+        consumer.close();
     }
 }

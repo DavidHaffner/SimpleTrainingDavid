@@ -35,7 +35,7 @@ public class MetricsInfoService {
                 logger.debug("Successfully received file from: " + filePath);
             }
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         return oneDayFileJsonsParser.parse(oneDayFile);

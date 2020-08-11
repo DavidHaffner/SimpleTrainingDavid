@@ -5,6 +5,7 @@ import cz.centrum.haffner.SimpleTrainingDavid.AppServices.MetricsInfoService;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.OneDayFileJsonParser;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
+import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,18 +24,26 @@ public class SimpleTrainingDavidController {
     private MetricsInfoService metricsInfoService;
     @Autowired
     private KpisInfoService kpisInfoService;
-
+    @Autowired
+    KafkaSimpleProducer kafkaSimpleProducer;
 
     @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
     public @ResponseBody ResponseEntity<MetricsInfoData> getMetrics(@PathVariable long requestedDate) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Receiving /metrics request from date: " + requestedDate);
+            logger.debug("Receiving metrics REST request from date: " + requestedDate);
         }
 
         MetricsInfoData response = metricsInfoService.processData(requestedDate);
 
+        // producing metrics data as json into Kafka
+        try {
+            kafkaSimpleProducer.produceToTopic("myTopic", response);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
         if(logger.isDebugEnabled()) {
-            logger.debug("Returning /metrics response.");
+            logger.debug("Returning metrics REST response.");
         }
         return new ResponseEntity<MetricsInfoData>(response, HttpStatus.OK);
     }
@@ -43,13 +52,13 @@ public class SimpleTrainingDavidController {
     @GetMapping("/kpis")
     public @ResponseBody ResponseEntity<KpisInfoData> getKpis() {
         if(logger.isDebugEnabled()) {
-            logger.debug("Receiving /kpis request.");
+            logger.debug("Receiving kpis REST request.");
         }
 
         KpisInfoData response = kpisInfoService.processData();
 
         if(logger.isDebugEnabled()) {
-            logger.debug("Returning /kpis response.");
+            logger.debug("Returning kpis REST response.");
         }
         return new ResponseEntity<KpisInfoData>(response, HttpStatus.OK);
     }

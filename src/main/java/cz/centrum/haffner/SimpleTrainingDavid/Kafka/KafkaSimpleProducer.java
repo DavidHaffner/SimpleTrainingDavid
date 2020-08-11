@@ -2,6 +2,7 @@ package cz.centrum.haffner.SimpleTrainingDavid.Kafka;
 
 import java.util.Properties;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.OneDayFileJsonParser;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -15,21 +16,16 @@ import org.springframework.stereotype.Component;
 public class KafkaSimpleProducer {
     private static final Logger logger = LogManager.getLogger(KafkaSimpleProducer.class);
 
-    public static void produceToTopic(String topicName) throws Exception{
+    // create instance for properties to access producer configs
+    private Properties props = new Properties();
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("Starting to produce to topic: " + topicName);
-        }
-
-        // create instance for properties to access producer configs
-        Properties props = new Properties();
-
+    private void fillProperties () {
         //Assign localhost id
         props.put("bootstrap.servers", "localhost:9092");
         //Set acknowledgements for producer requests.
         props.put("acknowledgement", "all");
-                //If the request fails, the producer can automatically retry,
-                props.put("retries", 0);
+        //If the request fails, the producer can automatically retry,
+        props.put("retries", 0);
         //Specify buffer size in config
         props.put("batch.size", 16384);
         //Reduce the no of requests less than 0
@@ -38,8 +34,16 @@ public class KafkaSimpleProducer {
         props.put("buffer.memory", 33554432);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    }
 
+    // testing producer with no data input from application
+    public void produceToTopic(String topicName) throws Exception{
 
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting to produce to topic: " + topicName);
+        }
+
+        if (props.isEmpty()) { fillProperties(); }
         Producer<String, String> producer = new KafkaProducer<>(props);
 
         for(int i = 0; i < 10; i++) {
@@ -47,6 +51,29 @@ public class KafkaSimpleProducer {
             if(logger.isInfoEnabled()) {
                 logger.info("KAFKA Producer created successfully msg text: " + i);
             }
+        }
+
+        producer.close();
+    }
+
+    // producer which transforms input object into JSON form and produce it
+    public void produceToTopic(String topicName, Object dataObject) throws Exception{
+        if(logger.isDebugEnabled()) {
+            logger.debug("Starting to produce to topic: " + topicName);
+        }
+
+        // preparations
+        if (props.isEmpty()) { fillProperties(); }
+        Producer<String, String> producer = new KafkaProducer<>(props);
+
+        // converting object into json string
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(dataObject);
+
+        // producing into Kafka
+        producer.send(new ProducerRecord<String, String>( topicName, jsonString, jsonString ));
+        if(logger.isInfoEnabled()) {
+            logger.info("KAFKA Producer created successfully msg text: " + jsonString);
         }
 
         producer.close();
