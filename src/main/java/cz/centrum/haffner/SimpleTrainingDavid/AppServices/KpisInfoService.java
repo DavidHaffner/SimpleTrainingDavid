@@ -11,7 +11,7 @@ public class KpisInfoService {
     @Autowired
     private KpisInfoData kpisInfoData;
 
-    public KpisInfoData processKpisInfoData() {
+    public KpisInfoData processData() {
         return kpisInfoData;
     }
 }

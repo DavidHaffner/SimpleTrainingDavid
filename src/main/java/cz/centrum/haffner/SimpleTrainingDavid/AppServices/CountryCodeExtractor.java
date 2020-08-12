@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CountryCodeExtractor {
+public class CountryCodeExtractor implements Extractor {
     @Autowired
     private CountryCodeMap countryCodeMap;
 
-
-    public int extractCountryCodeFromMsisdn(Object msisdn) {
+    // extracts country code from MSISDN
+    public int extract(Object msisdn) {
         if ( "".equals(msisdn) ) {
             return -1;   // the code for missing value
         } else {

@@ -7,29 +7,27 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class OneDayFileJsonParser {
-
-
+public class OneDayFileJsonParser implements Parser {
 
     @Autowired
     private KpisInfoData kpisInfoData;
     @Autowired
-    private CountryCodeExtractor countryCodeExtractor;
+    private Extractor countryCodeExtractor;
+    @Autowired
+    private Monitor givenWordsMonitor;
 
     private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoData process(File inputFile) {
+    public MetricsInfoData parse(URL inputUrl) {
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
 
@@ -39,7 +37,7 @@ public class OneDayFileJsonParser {
         int koCallsCounter = 0;
 
         // main process
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+        try ( BufferedReader br = new BufferedReader( new InputStreamReader(inputUrl.openStream()) ) ) {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -52,9 +50,9 @@ public class OneDayFileJsonParser {
                 jsonMap = objectMapper.readValue(fileLine, new TypeReference<Map<String, Object>>(){});
 
                 // get Origins & Destinations country code
-                int originCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("origin") );
+                int originCountryCode = countryCodeExtractor.extract( jsonMap.get("origin") );
                     // ((Number)jsonMap.get("origin")).longValue()
-                int destinationCountryCode = countryCodeExtractor.extractCountryCodeFromMsisdn( jsonMap.get("destination") );
+                int destinationCountryCode = countryCodeExtractor.extract( jsonMap.get("destination") );
 
                 // CALL type of file row
                 if ("CALL".equals( jsonMap.get("message_type") )) {
@@ -91,11 +89,12 @@ public class OneDayFileJsonParser {
                     if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter ++;}
                     if ( "KO".equals(jsonMap.get("status_code")) ) {koCallsCounter ++;}
 
-                    // average call duration
+                    // average call duration grouped by country code
                     if ( jsonMap.get("duration").getClass() == Integer.class ) {
-                        metricsInfoData.setAverageCallDuration(
-                                ( metricsInfoData.getAverageCallDuration() * callsCounter + (int)jsonMap.get("duration") )
-                                / ++callsCounter );
+                        metricsInfoData.setAverageCallDurationOfCC(originCountryCode,
+                                (metricsInfoData.getAverageCallDurationOfCC(originCountryCode)
+                                        * callsCounter + (int)jsonMap.get("duration") )
+                                        / ++callsCounter );
                     }
 
                     kpisInfoData.incrementTotalCallsNumber();
@@ -123,6 +122,12 @@ public class OneDayFileJsonParser {
                             jsonMap.get("message_content").getClass() != String.class ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
                         {metricsInfoData.incrementFieldsErrorsRowsCounter();}
+
+                    // Word occurrence ranking for the given words in message_content field
+                    if ( jsonMap.get("message_content").getClass() == String.class &&
+                            !( "".equals( jsonMap.get("message_content") )) ) {
+                        processWordOccurrenceRanking( (String)jsonMap.get("message_content") );
+                    }
 
                     kpisInfoData.incrementTotalMessagesNumber();
 
@@ -152,12 +157,20 @@ public class OneDayFileJsonParser {
             }
             kpisInfoData.incrementProcessedFilesNumber();
 
-            // final mapping
-            metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);  // the share of KO result to OK result
+            // final mapping into metricsInfoData
+                // the share of KO result to OK result
+                metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return metricsInfoData;
     }
+
+    private void processWordOccurrenceRanking (String smsText) {
+        for (String particularWord : smsText.split(" ") ) {
+            metricsInfoData.incrementGivenWordsRanking(particularWord);
+        }
+    }
+
 }

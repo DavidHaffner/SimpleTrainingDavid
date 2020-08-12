@@ -23,14 +23,14 @@ public class SimpleTrainingDavidController {
 
     @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
     public @ResponseBody ResponseEntity<MetricsInfoData> getMetrics(@PathVariable long requestedDate) {
-        MetricsInfoData response = metricsInfoService.processMetricsInfoData(requestedDate);
+        MetricsInfoData response = metricsInfoService.processData(requestedDate);
         return new ResponseEntity<MetricsInfoData>(response, HttpStatus.OK);
     }
 
 
     @GetMapping("/kpis")
     public @ResponseBody ResponseEntity<KpisInfoData> getKpis() {
-        KpisInfoData response = kpisInfoService.processKpisInfoData();
+        KpisInfoData response = kpisInfoService.processData();
         return new ResponseEntity<KpisInfoData>(response, HttpStatus.OK);
     }
 }
