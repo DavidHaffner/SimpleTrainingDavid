@@ -18,7 +18,7 @@ public class KafkaSimpleConsumer {
     public static void consumeFromTopic(String topicName) throws Exception {
 
         if(logger.isDebugEnabled()) {
-            logger.debug("Starting to consume from topic: " + topicName);
+            logger.debug("Starting to consume from topic: {}", topicName);
         }
 
         // create instance for properties to access producer configs
@@ -44,10 +44,8 @@ public class KafkaSimpleConsumer {
 
                 // print the offset,key and value for the consumer records.
                 if (logger.isInfoEnabled()) {
-                    logger.info("Consumed from topic: " + topicName
-                                    + "\noffset = " + record.offset()
-                                    + ", key = " + record.key()
-                                    + ", value = " + record.value() );
+                    logger.info("Consumed from topic: {}\noffset = {}, key = {}, value = {}",
+                            topicName, record.offset(), record.key(), record.value() );
                 }
             }
 

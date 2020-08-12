@@ -40,7 +40,7 @@ public class KafkaSimpleProducer {
     public void produceToTopic(String topicName) throws Exception{
 
         if(logger.isDebugEnabled()) {
-            logger.debug("Starting to produce to topic: " + topicName);
+            logger.debug("Starting to produce to topic: {}", topicName);
         }
 
         if (props.isEmpty()) { fillProperties(); }
@@ -49,7 +49,7 @@ public class KafkaSimpleProducer {
         for(int i = 0; i < 10; i++) {
             producer.send(new ProducerRecord<String, String>( topicName, String.valueOf(i), String.valueOf(i) ));
             if(logger.isInfoEnabled()) {
-                logger.info("KAFKA Producer created successfully msg text: " + i);
+                logger.info("KAFKA Producer created successfully msg text: {}", i);
             }
         }
 
@@ -59,7 +59,7 @@ public class KafkaSimpleProducer {
     // producer which transforms input object into JSON form and produce it
     public void produceToTopic(String topicName, Object dataObject) throws Exception{
         if(logger.isDebugEnabled()) {
-            logger.debug("Starting to produce to topic: " + topicName);
+            logger.debug("Starting to produce to topic: {}", topicName);
         }
 
         // preparations
@@ -73,7 +73,7 @@ public class KafkaSimpleProducer {
         // producing into Kafka
         producer.send(new ProducerRecord<String, String>( topicName, jsonString, jsonString ));
         if(logger.isInfoEnabled()) {
-            logger.info("KAFKA Producer created successfully msg text: " + jsonString);
+            logger.info("KAFKA Producer created successfully msg text: {}", jsonString);
         }
 
         producer.close();

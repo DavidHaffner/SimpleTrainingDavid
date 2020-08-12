@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 public class SimpleTrainingDavidController {
     private static final Logger logger = LogManager.getLogger(SimpleTrainingDavidController.class);
@@ -28,26 +30,29 @@ public class SimpleTrainingDavidController {
     KafkaSimpleProducer kafkaSimpleProducer;
 
     @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
-    public @ResponseBody ResponseEntity<MetricsInfoData> getMetrics(@PathVariable long requestedDate) {
+    public @ResponseBody ResponseEntity<Object> getMetrics(@PathVariable long requestedDate) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Receiving metrics REST request from date: " + requestedDate);
+            logger.debug("Receiving metrics REST request from date: {}", requestedDate);
         }
 
-        MetricsInfoData response = metricsInfoService.processData(requestedDate);
-
-        // producing metrics data as json into Kafka
         try {
-            kafkaSimpleProducer.produceToTopic("myTopic", response);
+            MetricsInfoData response = metricsInfoService.processData(requestedDate);
+
+            // producing metrics data as json into Kafka
+            try {
+                kafkaSimpleProducer.produceToTopic("myTopic", response);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            if(logger.isDebugEnabled()) {
+                logger.debug("Returning metrics REST response.");
+            }
+            return new ResponseEntity<Object>( response, HttpStatus.OK );
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            return new ResponseEntity<Object>( "ERROR WHEN OBTAINING DATA FROM FILE:  " + e.getMessage(), HttpStatus.NOT_FOUND );
         }
-
-        if(logger.isDebugEnabled()) {
-            logger.debug("Returning metrics REST response.");
-        }
-        return new ResponseEntity<MetricsInfoData>(response, HttpStatus.OK);
     }
-
 
     @GetMapping("/kpis")
     public @ResponseBody ResponseEntity<KpisInfoData> getKpis() {

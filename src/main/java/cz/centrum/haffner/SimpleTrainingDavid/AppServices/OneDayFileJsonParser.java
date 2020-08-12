@@ -7,6 +7,8 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleConsumer;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -35,7 +37,7 @@ public class OneDayFileJsonParser implements Parser {
     private MetricsInfoData metricsInfoData;
 
 
-    public MetricsInfoData parse(URL inputUrl) {
+    public MetricsInfoData parse(URL inputUrl) throws IOException {
         if(logger.isDebugEnabled()) {
             logger.debug("Starting to parse.");
         }
@@ -84,14 +86,14 @@ public class OneDayFileJsonParser implements Parser {
                         {metricsInfoData.incrementMissingFieldsRowsCounter();}
 
                     // rows with field errors
-                    if ( jsonMap.get("timestamp").getClass() != Long.class ||
-                            jsonMap.get("origin").getClass() != Long.class ||
+                    if ( !(jsonMap.get("timestamp") instanceof Long) ||
+                            !(jsonMap.get("origin") instanceof Long) ||
                             originCountryCode == 0 ||                                   // 0 means CC not found
-                            jsonMap.get("destination").getClass() != Long.class ||
+                            !(jsonMap.get("destination") instanceof Long) ||
                             destinationCountryCode == 0 ||                              // 0 means CC not found
-                            jsonMap.get("duration").getClass() != Integer.class ||
+                            !(jsonMap.get("duration") instanceof Integer) ||
                             !( "OK".equals(jsonMap.get("status_code")) || "KO".equals(jsonMap.get("status_code")) ) ||
-                            jsonMap.get("status_description").getClass() != String.class )
+                            !(jsonMap.get("status_description") instanceof  String) )
                         {metricsInfoData.incrementFieldsErrorsRowsCounter();}
 
                     // number of calls origin/destination grouped by country code
@@ -107,7 +109,7 @@ public class OneDayFileJsonParser implements Parser {
                     if ( "KO".equals(jsonMap.get("status_code")) ) {koCallsCounter ++;}
 
                     // average call duration grouped by country code
-                    if ( jsonMap.get("duration").getClass() == Integer.class ) {
+                    if ( jsonMap.get("duration") instanceof Integer ) {
                         metricsInfoData.setAverageCallDurationOfCC(originCountryCode,
                                 (metricsInfoData.getAverageCallDurationOfCC(originCountryCode)
                                         * callsCounter + (int)jsonMap.get("duration") )
@@ -131,19 +133,19 @@ public class OneDayFileJsonParser implements Parser {
                         metricsInfoData.incrementBlankContentMessagesCounter();}
 
                     // rows with field errors
-                    if ( jsonMap.get("timestamp").getClass() != Long.class ||
-                            jsonMap.get("origin").getClass() != Long.class ||
+                    if ( !(jsonMap.get("timestamp") instanceof Long) ||
+                            !(jsonMap.get("origin") instanceof Long) ||
                             originCountryCode == 0 ||                                   // 0 means CC not found
-                            jsonMap.get("destination").getClass() != Long.class ||
+                            !(jsonMap.get("destination") instanceof Long) ||
                             destinationCountryCode == 0 ||                              // 0 means CC not found
-                            jsonMap.get("message_content").getClass() != String.class ||
+                            !(jsonMap.get("message_content") instanceof String) ||
                             !( "DELIVERED".equals(jsonMap.get("message_status")) || "SEEN".equals(jsonMap.get("message_status")) ))
                         {metricsInfoData.incrementFieldsErrorsRowsCounter();}
 
                     // Word occurrence ranking for the given words in message_content field
-                    if ( jsonMap.get("message_content").getClass() == String.class &&
+                    if ( jsonMap.get("message_content") instanceof String &&
                             !( "".equals( jsonMap.get("message_content") )) ) {
-                        processWordOccurrenceRanking( (String)jsonMap.get("message_content") );
+                        processWordOccurrenceRanking( String.valueOf(jsonMap.get("message_content")) );
                     }
 
                     kpisInfoData.incrementTotalMessagesNumber();
@@ -174,7 +176,7 @@ public class OneDayFileJsonParser implements Parser {
 
                 rowsCounter++;
                 if(logger.isDebugEnabled()) {
-                    logger.debug("Successfully finished processing of row no: " + rowsCounter);
+                    logger.debug("Successfully finished processing of row no: {}", rowsCounter);
                 }
             }
             kpisInfoData.incrementProcessedFilesNumber();
@@ -185,6 +187,7 @@ public class OneDayFileJsonParser implements Parser {
 
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
+            throw e;
         }
         if(logger.isDebugEnabled()) {
             logger.debug("Ending of one day file processing.");
@@ -215,5 +218,4 @@ public class OneDayFileJsonParser implements Parser {
             metricsInfoData.incrementGivenWordsRanking(particularWord);
         }
     }
-
 }
