@@ -15,11 +15,8 @@ import org.springframework.stereotype.Component;
 public class KafkaSimpleConsumer {
     private static final Logger logger = LogManager.getLogger(KafkaSimpleConsumer.class);
 
-    public static void consumeFromTopic(String topicName) throws Exception {
-
-        if(logger.isDebugEnabled()) {
-            logger.debug("Starting to consume from topic: {}", topicName);
-        }
+    public static void consumeFromTopic(String topicName) {
+        logger.debug("Starting to consume from topic: {}", topicName);
 
         // create instance for properties to access producer configs
         Properties props = new Properties();
@@ -41,12 +38,9 @@ public class KafkaSimpleConsumer {
         while ( !haveNewRecords) {
             ConsumerRecords<String, String> records = consumer.poll(1000);
             for (ConsumerRecord<String, String> record : records) {
-
-                // print the offset,key and value for the consumer records.
-                if (logger.isInfoEnabled()) {
-                    logger.info("Consumed from topic: {}\noffset = {}, key = {}, value = {}",
+                // print the offset,key and value for the consumer records
+                logger.info("Consumed from topic: {}\noffset = {}, key = {}, value = {}",
                             topicName, record.offset(), record.key(), record.value() );
-                }
             }
 
             if (records.partitions().size() != 0) { haveNewRecords = true; }

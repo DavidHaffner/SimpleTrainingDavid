@@ -26,9 +26,7 @@ public class MetricsInfoService {
 
 
     public MetricsInfoData processData (long requestedDate) throws Exception {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Starting to process metrics data for assigned date: {}", requestedDate);
-        }
+        logger.debug("Starting to process metrics data for assigned date: {}", requestedDate);
 
         // get the file of requested date
         String filePath = FILE_PATH_PREFIX + "MCP_" + requestedDate + ".json";

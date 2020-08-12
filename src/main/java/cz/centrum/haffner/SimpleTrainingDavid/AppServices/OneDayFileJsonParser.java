@@ -7,8 +7,6 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleConsumer;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -38,9 +36,7 @@ public class OneDayFileJsonParser implements Parser {
 
 
     public MetricsInfoData parse(URL inputUrl) throws IOException {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Starting to parse.");
-        }
+        logger.debug("Starting to parse.");
 
         // new data instance with zero values
         metricsInfoData = new MetricsInfoData();
@@ -56,9 +52,7 @@ public class OneDayFileJsonParser implements Parser {
             String fileLine;
             ObjectMapper objectMapper = new ObjectMapper();
 
-            if(logger.isDebugEnabled()) {
-                logger.debug("Starting of one day file processing.");
-            }
+            logger.debug("Starting of one day file processing.");
 
             // row by row data (jsons) processing
             while ((fileLine = br.readLine()) != null) {
@@ -166,8 +160,8 @@ public class OneDayFileJsonParser implements Parser {
                 // sleeping block for higher visibility of particular processes duration
                 try {
                     Thread.sleep(50);
-                } catch(InterruptedException ex){
-                    logger.error(ex.getMessage(), ex);
+                } catch(InterruptedException e){
+                    logger.error(e.getMessage(), e);
                 }
 
                 Instant endingJsonProcess = Instant.now();
@@ -175,9 +169,7 @@ public class OneDayFileJsonParser implements Parser {
                         Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
 
                 rowsCounter++;
-                if(logger.isDebugEnabled()) {
-                    logger.debug("Successfully finished processing of row no: {}", rowsCounter);
-                }
+                logger.debug("Successfully finished processing of row no: {}", rowsCounter);
             }
             kpisInfoData.incrementProcessedFilesNumber();
 
@@ -189,27 +181,15 @@ public class OneDayFileJsonParser implements Parser {
             logger.error(e.getMessage(), e);
             throw e;
         }
-        if(logger.isDebugEnabled()) {
-            logger.debug("Ending of one day file processing.");
-        }
+        logger.debug("Ending of one day file processing.");
 
         // implementing of kafka producer -> simulates producing into the topic in param
-        try {
-            kafkaSimpleProducer.produceToTopic("myTopic");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
+        kafkaSimpleProducer.produceToTopic("myTopic");
+
         // implementing of kafka consumer -> simulates consuming back from the topic in param
-        try {
-            kafkaSimpleConsumer.consumeFromTopic("myTopic");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
+        kafkaSimpleConsumer.consumeFromTopic("myTopic");
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("Ending to parse and returning Metrics data.");
-        }
-
+        logger.debug("Ending to parse and returning Metrics data.");
         return metricsInfoData;
     }
 

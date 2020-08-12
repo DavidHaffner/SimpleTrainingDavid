@@ -31,40 +31,27 @@ public class SimpleTrainingDavidController {
 
     @GetMapping("/{requestedDate}/metrics")   // supposed date format: YYYYMMDD
     public @ResponseBody ResponseEntity<Object> getMetrics(@PathVariable long requestedDate) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Receiving metrics REST request from date: {}", requestedDate);
-        }
+        logger.debug("Receiving metrics REST request from date: {}", requestedDate);
 
         try {
             MetricsInfoData response = metricsInfoService.processData(requestedDate);
 
             // producing metrics data as json into Kafka
-            try {
-                kafkaSimpleProducer.produceToTopic("myTopic", response);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            if(logger.isDebugEnabled()) {
-                logger.debug("Returning metrics REST response.");
-            }
-            return new ResponseEntity<Object>( response, HttpStatus.OK );
+            kafkaSimpleProducer.produceToTopic("myTopic", response);
+            logger.debug("Returning metrics REST response.");
+            return new ResponseEntity<>( response, HttpStatus.OK );
         } catch (Exception e) {
-            return new ResponseEntity<Object>( "ERROR WHEN OBTAINING DATA FROM FILE:  " + e.getMessage(), HttpStatus.NOT_FOUND );
+            return new ResponseEntity<>( "ERROR WHEN OBTAINING DATA FROM FILE:  " + e.getMessage(), HttpStatus.NOT_FOUND );
         }
     }
 
     @GetMapping("/kpis")
     public @ResponseBody ResponseEntity<KpisInfoData> getKpis() {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Receiving kpis REST request.");
-        }
+        logger.debug("Receiving kpis REST request.");
 
         KpisInfoData response = kpisInfoService.processData();
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("Returning kpis REST response.");
-        }
+        logger.debug("Returning kpis REST response.");
         return new ResponseEntity<KpisInfoData>(response, HttpStatus.OK);
     }
 }

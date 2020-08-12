@@ -2,6 +2,7 @@ package cz.centrum.haffner.SimpleTrainingDavid.Kafka;
 
 import java.util.Properties;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.OneDayFileJsonParser;
 import org.apache.kafka.clients.producer.Producer;
@@ -37,7 +38,7 @@ public class KafkaSimpleProducer {
     }
 
     // testing producer with no data input from application
-    public void produceToTopic(String topicName) throws Exception{
+    public void produceToTopic(String topicName) {
 
         if(logger.isDebugEnabled()) {
             logger.debug("Starting to produce to topic: {}", topicName);
@@ -47,7 +48,7 @@ public class KafkaSimpleProducer {
         Producer<String, String> producer = new KafkaProducer<>(props);
 
         for(int i = 0; i < 10; i++) {
-            producer.send(new ProducerRecord<String, String>( topicName, String.valueOf(i), String.valueOf(i) ));
+            producer.send(new ProducerRecord<>( topicName, String.valueOf(i), String.valueOf(i) ));
             if(logger.isInfoEnabled()) {
                 logger.info("KAFKA Producer created successfully msg text: {}", i);
             }
@@ -57,10 +58,8 @@ public class KafkaSimpleProducer {
     }
 
     // producer which transforms input object into JSON form and produce it
-    public void produceToTopic(String topicName, Object dataObject) throws Exception{
-        if(logger.isDebugEnabled()) {
-            logger.debug("Starting to produce to topic: {}", topicName);
-        }
+    public void produceToTopic(String topicName, Object dataObject) {
+        logger.debug("Starting to produce to topic: {}", topicName);
 
         // preparations
         if (props.isEmpty()) { fillProperties(); }
@@ -68,13 +67,16 @@ public class KafkaSimpleProducer {
 
         // converting object into json string
         ObjectMapper mapper = new ObjectMapper();
-        String jsonString = mapper.writeValueAsString(dataObject);
+        String jsonString = null;
+        try {
+            jsonString = mapper.writeValueAsString(dataObject);
+        } catch (JsonProcessingException e) {
+            logger.error(e.getMessage(), e);
+        }
 
         // producing into Kafka
-        producer.send(new ProducerRecord<String, String>( topicName, jsonString, jsonString ));
-        if(logger.isInfoEnabled()) {
-            logger.info("KAFKA Producer created successfully msg text: {}", jsonString);
-        }
+        producer.send(new ProducerRecord<>( topicName, jsonString, jsonString ));
+        logger.info("KAFKA Producer created successfully msg text: {}", jsonString);
 
         producer.close();
     }
