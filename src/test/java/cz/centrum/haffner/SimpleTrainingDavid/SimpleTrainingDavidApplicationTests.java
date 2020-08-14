@@ -12,5 +12,4 @@ class SimpleTrainingDavidApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
