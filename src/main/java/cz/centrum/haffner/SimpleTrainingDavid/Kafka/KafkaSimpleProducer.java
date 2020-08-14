@@ -47,14 +47,13 @@ public class KafkaSimpleProducer {
         String jsonString = null;
         try {
             jsonString = mapper.writeValueAsString(dataObject);
+            // producing into Kafka
+            producer.send(new ProducerRecord<>( topicName, jsonString, jsonString ));
+            logger.info("KAFKA Producer created successfully msg text: {}", jsonString);
         } catch (JsonProcessingException e) {
             logger.error(e.getMessage(), e);
+        } finally {
+            producer.close();
         }
-
-        // producing into Kafka
-        producer.send(new ProducerRecord<>( topicName, jsonString, jsonString ));
-        logger.info("KAFKA Producer created successfully msg text: {}", jsonString);
-
-        producer.close();
     }
 }
