@@ -138,4 +138,18 @@ public class MetricsInfoData {
     public Map<String, Integer> getGivenWordsRanking() {
         return givenWordsRanking;
     }
+
+    @Override
+    public String toString() {
+        return "MetricsInfoData{" +
+                "missingFieldsRowsCounter=" + missingFieldsRowsCounter +
+                ", blankContentMessagesCounter=" + blankContentMessagesCounter +
+                ", fieldsErrorsRowsCounter=" + fieldsErrorsRowsCounter +
+                ", groupedCallsOriginCounter=" + groupedCallsOriginCounter +
+                ", groupedCallsDestinationCounter=" + groupedCallsDestinationCounter +
+                ", koToOkRatio=" + koToOkRatio +
+                ", groupedAverageCallDuration=" + groupedAverageCallDuration +
+                ", givenWordsRanking=" + givenWordsRanking +
+                '}';
+    }
 }

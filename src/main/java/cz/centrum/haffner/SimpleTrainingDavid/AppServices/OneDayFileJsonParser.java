@@ -66,8 +66,6 @@ public class OneDayFileJsonParser implements Parser {
                 int originCountryCode = countryCodeExtractor.extract( jsonMap.get("origin") );
                 int destinationCountryCode = countryCodeExtractor.extract( jsonMap.get("destination") );
 
-                logger.debug("//////////////////////////////////");
-
                 // CALL type of file row
                 if ("CALL".equals( jsonMap.get("message_type") )) {
 
