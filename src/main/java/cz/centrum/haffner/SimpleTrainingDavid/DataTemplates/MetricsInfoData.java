@@ -1,18 +1,21 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MetricsInfoData {
 
-    private int missingFieldsRowsCounter =0;        // Number of rows with missing fields
-    private int blankContentMessagesCounter =0;     // Number of messages with blank content
-    private int fieldsErrorsRowsCounter =0;        // Number of rows with fields errors
-    private Map<Integer, Integer> groupedCallsOriginCounter = new HashMap();  // Number of calls origin grouped by country code
-    private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
-    private float koToOkRatio =0.0f;               // Relationship between OK/KO calls
-    private Map<Integer, Float> groupedAverageCallDuration = new HashMap();   // Average call duration grouped by country code
-    private Map<String, Integer> givenWordsRanking = new HashMap();   // Word occurrence ranking for the given words in message
+    private AtomicInteger missingFieldsRowsCounter = new AtomicInteger(0);        // Number of rows with missing fields
+    private AtomicInteger blankContentMessagesCounter = new AtomicInteger(0);     // Number of messages with blank content
+    private AtomicInteger fieldsErrorsRowsCounter = new AtomicInteger(0);        // Number of rows with fields errors
+    private Map<Integer, Integer> groupedCallsOriginCounter = Collections.synchronizedMap(new HashMap());  // Number of calls origin grouped by country code
+    private Map<Integer, Integer> groupedCallsDestinationCounter = Collections.synchronizedMap(new HashMap());  // Number of calls destination grouped by country code
+    private AtomicReference<Float> koToOkRatio = new AtomicReference<>(0.0f);               // Relationship between OK/KO calls
+    private Map<Integer, Float> groupedAverageCallDuration = Collections.synchronizedMap(new HashMap());   // Average call duration grouped by country code
+    private Map<String, Integer> givenWordsRanking = Collections.synchronizedMap(new HashMap());   // Word occurrence ranking for the given words in message
 
     // increment by 1
     public void incrementMissingFieldsRowsCounter() {
@@ -21,7 +24,7 @@ public class MetricsInfoData {
     // increment by n
     public void incrementMissingFieldsRowsCounter(int amountToAdd) {
         if (amountToAdd >0) {
-            missingFieldsRowsCounter += amountToAdd;
+            missingFieldsRowsCounter.addAndGet(amountToAdd);
         }
     }
 
@@ -32,7 +35,7 @@ public class MetricsInfoData {
     // increment by n
     public void incrementBlankContentMessagesCounter(int amountToAdd) {
         if (amountToAdd >0) {
-            blankContentMessagesCounter += amountToAdd;
+            blankContentMessagesCounter.addAndGet(amountToAdd);
         }
     }
 
@@ -44,7 +47,7 @@ public class MetricsInfoData {
     // increment by n
     public void incrementFieldsErrorsRowsCounter(int amountToAdd) {
         if (amountToAdd >0) {
-            fieldsErrorsRowsCounter += amountToAdd;
+            fieldsErrorsRowsCounter.addAndGet(amountToAdd);
         }
     }
 
@@ -83,27 +86,27 @@ public class MetricsInfoData {
 
     // getters & setters
     public int getMissingFieldsRowsCounter() {
-        return missingFieldsRowsCounter;
+        return missingFieldsRowsCounter.get();
     }
 
     public void setMissingFieldsRowsCounter(int missingFieldsRowsCounter) {
-        this.missingFieldsRowsCounter = missingFieldsRowsCounter;
+        this.missingFieldsRowsCounter.set(missingFieldsRowsCounter);
     }
 
     public int getBlankContentMessagesCounter() {
-        return blankContentMessagesCounter;
+        return blankContentMessagesCounter.get();
     }
 
     public void setBlankContentMessagesCounter(int blankContentMessagesCounter) {
-        this.blankContentMessagesCounter = blankContentMessagesCounter;
+        this.blankContentMessagesCounter.set(blankContentMessagesCounter);
     }
 
     public int getFieldsErrorsRowsCounter() {
-        return fieldsErrorsRowsCounter;
+        return fieldsErrorsRowsCounter.get();
     }
 
     public void setFieldsErrorsRowsCounter(int fieldsErrorsRowsCounter) {
-        this.fieldsErrorsRowsCounter = fieldsErrorsRowsCounter;
+        this.fieldsErrorsRowsCounter.set(fieldsErrorsRowsCounter);
     }
 
     public Map getGroupedCallsOriginCounter() {
@@ -115,11 +118,11 @@ public class MetricsInfoData {
     }
 
     public float getKoToOkRatio() {
-        return koToOkRatio;
+        return koToOkRatio.get();
     }
 
     public void setKoToOkRatio(float koToOkRatio) {
-        this.koToOkRatio = koToOkRatio;
+        this.koToOkRatio.set(koToOkRatio);
     }
 
     public Map<Integer, Float> getGroupedAverageCallDuration() {
