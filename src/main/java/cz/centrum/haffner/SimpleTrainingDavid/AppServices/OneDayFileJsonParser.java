@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -32,20 +33,18 @@ public class OneDayFileJsonParser implements Parser {
     @Autowired
     private KafkaSimpleConsumer kafkaSimpleConsumer;
 
-    private MetricsInfoData metricsInfoData;
-
 
     public MetricsInfoData parse(URL inputUrl) throws IOException {
         logger.debug("Starting to parse.");
 
         // new data instance with zero values
-        metricsInfoData = new MetricsInfoData();
+        MetricsInfoData metricsInfoData = new MetricsInfoData();
 
         // local one file counters
-        int rowsCounter = 0;
-        int callsCounter = 0;
-        int okCallsCounter = 0;
-        int koCallsCounter = 0;
+        AtomicInteger rowsCounter = new AtomicInteger(0);
+        AtomicInteger callsCounter = new AtomicInteger(0);
+        AtomicInteger okCallsCounter = new AtomicInteger(0);
+        AtomicInteger koCallsCounter = new AtomicInteger(0);
 
         // main process
         try ( BufferedReader br = new BufferedReader( new InputStreamReader(inputUrl.openStream()) ) ) {
@@ -64,7 +63,6 @@ public class OneDayFileJsonParser implements Parser {
 
                 // get Origins & Destinations country code
                 int originCountryCode = countryCodeExtractor.extract( jsonMap.get("origin") );
-                    // ((Number)jsonMap.get("origin")).longValue()
                 int destinationCountryCode = countryCodeExtractor.extract( jsonMap.get("destination") );
 
                 // CALL type of file row
@@ -99,15 +97,15 @@ public class OneDayFileJsonParser implements Parser {
                     }
 
                     // relation between OK/KO calls
-                    if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter ++;}
-                    if ( "KO".equals(jsonMap.get("status_code")) ) {koCallsCounter ++;}
+                    if ( "OK".equals(jsonMap.get("status_code")) ) {okCallsCounter.incrementAndGet();}
+                    if ( "KO".equals(jsonMap.get("status_code")) ) {koCallsCounter.incrementAndGet();}
 
                     // average call duration grouped by country code
                     if ( jsonMap.get("duration") instanceof Integer ) {
                         metricsInfoData.setAverageCallDurationOfCC(originCountryCode,
                                 (metricsInfoData.getAverageCallDurationOfCC(originCountryCode)
-                                        * callsCounter + (int)jsonMap.get("duration") )
-                                        / ++callsCounter );
+                                        * callsCounter.get() + (int)jsonMap.get("duration") )
+                                        / callsCounter.incrementAndGet() );
                     }
 
                     kpisInfoData.incrementTotalCallsNumber();
@@ -139,7 +137,7 @@ public class OneDayFileJsonParser implements Parser {
                     // Word occurrence ranking for the given words in message_content field
                     if ( jsonMap.get("message_content") instanceof String &&
                             !( "".equals( jsonMap.get("message_content") )) ) {
-                        processWordOccurrenceRanking( String.valueOf(jsonMap.get("message_content")) );
+                        processWordOccurrenceRanking( String.valueOf(jsonMap.get("message_content")), metricsInfoData );
                     }
 
                     kpisInfoData.incrementTotalMessagesNumber();
@@ -168,14 +166,14 @@ public class OneDayFileJsonParser implements Parser {
                 kpisInfoData.addJsonProcessingDuration(
                         Duration.between(startingJsonProcess, endingJsonProcess).toMillis() );
 
-                rowsCounter++;
+                rowsCounter.incrementAndGet();
                 logger.debug("Successfully finished processing of row no: {}", rowsCounter);
             }
             kpisInfoData.incrementProcessedFilesNumber();
 
             // final mapping into metricsInfoData
                 // the share of KO result to OK result
-                metricsInfoData.setKoToOkRatio(koCallsCounter / (float) okCallsCounter);
+                metricsInfoData.setKoToOkRatio(koCallsCounter.get() / (float) okCallsCounter.get());
 
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -193,7 +191,7 @@ public class OneDayFileJsonParser implements Parser {
         return metricsInfoData;
     }
 
-    private void processWordOccurrenceRanking (String smsText) {
+    private void processWordOccurrenceRanking (String smsText, MetricsInfoData metricsInfoData) {
         for (String particularWord : smsText.split(" ") ) {
             metricsInfoData.incrementGivenWordsRanking(particularWord);
         }

@@ -1,16 +1,19 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MetricsInfoData {
 
-    private int missingFieldsRowsCounter =0;        // Number of rows with missing fields
-    private int blankContentMessagesCounter =0;     // Number of messages with blank content
-    private int fieldsErrorsRowsCounter =0;        // Number of rows with fields errors
+    private int missingFieldsRowsCounter = 0;        // Number of rows with missing fields
+    private int blankContentMessagesCounter = 0;     // Number of messages with blank content
+    private int fieldsErrorsRowsCounter = 0;        // Number of rows with fields errors
     private Map<Integer, Integer> groupedCallsOriginCounter = new HashMap();  // Number of calls origin grouped by country code
     private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
-    private float koToOkRatio =0.0f;               // Relationship between OK/KO calls
+    private float koToOkRatio = 0.0f;               // Relationship between OK/KO calls
     private Map<Integer, Float> groupedAverageCallDuration = new HashMap();   // Average call duration grouped by country code
     private Map<String, Integer> givenWordsRanking = new HashMap();   // Word occurrence ranking for the given words in message
 
@@ -137,5 +140,19 @@ public class MetricsInfoData {
 
     public Map<String, Integer> getGivenWordsRanking() {
         return givenWordsRanking;
+    }
+
+    @Override
+    public String toString() {
+        return "MetricsInfoData{" +
+                "missingFieldsRowsCounter=" + missingFieldsRowsCounter +
+                ", blankContentMessagesCounter=" + blankContentMessagesCounter +
+                ", fieldsErrorsRowsCounter=" + fieldsErrorsRowsCounter +
+                ", groupedCallsOriginCounter=" + groupedCallsOriginCounter +
+                ", groupedCallsDestinationCounter=" + groupedCallsDestinationCounter +
+                ", koToOkRatio=" + koToOkRatio +
+                ", groupedAverageCallDuration=" + groupedAverageCallDuration +
+                ", givenWordsRanking=" + givenWordsRanking +
+                '}';
     }
 }

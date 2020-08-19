@@ -4,6 +4,7 @@ import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -21,6 +22,7 @@ public class MetricsInfoService {
 
     private static final String FILE_PATH_PREFIX = "https://raw.githubusercontent.com/TomasStesti/simpleTraining/master/logs/";
     //private static final String FILE_PATH_PREFIX = MetricsInfoService.class.getResource("/MCPData/").getPath();
+    @Qualifier("oneDayFileJsonParser")
     @Autowired
     private Parser oneDayFileJsonsParser;
 

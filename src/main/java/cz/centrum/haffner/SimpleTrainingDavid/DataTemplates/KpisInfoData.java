@@ -2,22 +2,20 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // singleton containing global service operations counters
 @Component
 public class KpisInfoData {
 
-    private int processedFilesNumber =0;           // Total number of processed JSON files
-    private int totalRowsNumber =0;                // Total number of rows
-    private int totalCallsNumber =0;               // Total number of calls
-    private int totalMessagesNumber =0;            // Total number of messages
-    private Set<Integer> differentOriginCodesSet = new HashSet<>();  // Total number of different origin country codes
-    private Set<Integer> differentDestinationCodesSet = new HashSet<>(); // Total number of different destination country codes
-    private List<Long> jsonProcessingDurationList = new LinkedList<>();  // Duration of each JSON process
+    private AtomicInteger processedFilesNumber = new AtomicInteger(0); // Total number of processed JSON files
+    private AtomicInteger totalRowsNumber = new AtomicInteger(0);      // Total number of rows
+    private AtomicInteger totalCallsNumber = new AtomicInteger(0);     // Total number of calls
+    private AtomicInteger totalMessagesNumber = new AtomicInteger(0);  // Total number of messages
+    private Set<Integer> differentOriginCodesSet = Collections.synchronizedSet(new HashSet<>());  // Total number of different origin country codes
+    private Set<Integer> differentDestinationCodesSet = Collections.synchronizedSet(new HashSet<>()); // Total number of different destination country codes
+    private List<Long> jsonProcessingDurationList = Collections.synchronizedList(new LinkedList<>());  // Duration of each JSON process
 
 
     // increment by 1
@@ -27,7 +25,7 @@ public class KpisInfoData {
     // increment by n
     public void incrementProcessedFilesNumber(int amountToAdd) {
         if (amountToAdd >0) {
-            processedFilesNumber += amountToAdd;
+            processedFilesNumber.addAndGet(amountToAdd);
         }
     }
 
@@ -38,7 +36,7 @@ public class KpisInfoData {
     // increment by n
     public void incrementTotalRowsNumber(int amountToAdd) {
         if (amountToAdd >0) {
-            totalRowsNumber += amountToAdd;
+            totalRowsNumber.addAndGet(amountToAdd);
         }
     }
 
@@ -49,7 +47,7 @@ public class KpisInfoData {
     // increment by n
     public void incrementTotalCallsNumber(int amountToAdd) {
         if (amountToAdd >0) {
-            totalCallsNumber += amountToAdd;
+            totalCallsNumber.addAndGet(amountToAdd);
         }
     }
 
@@ -60,7 +58,7 @@ public class KpisInfoData {
     // increment by n
     public void incrementTotalMessagesNumber(int amountToAdd) {
         if (amountToAdd >0) {
-            totalMessagesNumber += amountToAdd;
+            totalMessagesNumber.addAndGet(amountToAdd);
         }
     }
 
@@ -68,35 +66,35 @@ public class KpisInfoData {
 
     // getters & setters
     public int getProcessedFilesNumber() {
-        return processedFilesNumber;
+        return processedFilesNumber.get();
     }
 
     public void setProcessedFilesNumber(int processedFilesNumber) {
-        this.processedFilesNumber = processedFilesNumber;
+        this.processedFilesNumber.set(processedFilesNumber);
     }
 
     public int getTotalRowsNumber() {
-        return totalRowsNumber;
+        return totalRowsNumber.get();
     }
 
     public void setTotalRowsNumber(int totalRowsNumber) {
-        this.totalRowsNumber = totalRowsNumber;
+        this.totalRowsNumber.set(totalRowsNumber);
     }
 
     public int getTotalCallsNumber() {
-        return totalCallsNumber;
+        return totalCallsNumber.get();
     }
 
     public void setTotalCallsNumber(int totalCallsNumber) {
-        this.totalCallsNumber = totalCallsNumber;
+        this.totalCallsNumber.set(totalCallsNumber);
     }
 
     public int getTotalMessagesNumber() {
-        return totalMessagesNumber;
+        return totalMessagesNumber.get();
     }
 
     public void setTotalMessagesNumber(int totalMessagesNumber) {
-        this.totalMessagesNumber = totalMessagesNumber;
+        this.totalMessagesNumber.set(totalMessagesNumber);
     }
 
     public void addDifferentOriginCodesSet (int originCode) {
