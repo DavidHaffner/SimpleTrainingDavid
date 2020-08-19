@@ -33,14 +33,12 @@ public class OneDayFileJsonParser implements Parser {
     @Autowired
     private KafkaSimpleConsumer kafkaSimpleConsumer;
 
-    private MetricsInfoData metricsInfoData;
 
-
-    public synchronized MetricsInfoData parse(URL inputUrl) throws IOException {
+    public MetricsInfoData parse(URL inputUrl) throws IOException {
         logger.debug("Starting to parse.");
 
         // new data instance with zero values
-        metricsInfoData = new MetricsInfoData();
+        MetricsInfoData metricsInfoData = new MetricsInfoData();
 
         // local one file counters
         AtomicInteger rowsCounter = new AtomicInteger(0);
@@ -139,7 +137,7 @@ public class OneDayFileJsonParser implements Parser {
                     // Word occurrence ranking for the given words in message_content field
                     if ( jsonMap.get("message_content") instanceof String &&
                             !( "".equals( jsonMap.get("message_content") )) ) {
-                        processWordOccurrenceRanking( String.valueOf(jsonMap.get("message_content")) );
+                        processWordOccurrenceRanking( String.valueOf(jsonMap.get("message_content")), metricsInfoData );
                     }
 
                     kpisInfoData.incrementTotalMessagesNumber();
@@ -193,7 +191,7 @@ public class OneDayFileJsonParser implements Parser {
         return metricsInfoData;
     }
 
-    private void processWordOccurrenceRanking (String smsText) {
+    private void processWordOccurrenceRanking (String smsText, MetricsInfoData metricsInfoData) {
         for (String particularWord : smsText.split(" ") ) {
             metricsInfoData.incrementGivenWordsRanking(particularWord);
         }
