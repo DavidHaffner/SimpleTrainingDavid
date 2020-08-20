@@ -2,7 +2,6 @@ package cz.centrum.haffner.SimpleTrainingDavid.REST;
 
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.KpisInfoService;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.MetricsInfoService;
-import cz.centrum.haffner.SimpleTrainingDavid.AppServices.OneDayFileJsonParser;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
@@ -16,11 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
-public class SimpleTrainingDavidController {
-    private static final Logger logger = LogManager.getLogger(SimpleTrainingDavidController.class);
+public class SimpleTrainingDavidRestController {
+    private static final Logger logger = LogManager.getLogger(SimpleTrainingDavidRestController.class);
 
     @Autowired
     private MetricsInfoService metricsInfoService;

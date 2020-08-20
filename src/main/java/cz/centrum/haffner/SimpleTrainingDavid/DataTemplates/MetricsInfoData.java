@@ -1,8 +1,6 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -112,6 +110,18 @@ public class MetricsInfoData {
     public Map getGroupedCallsOriginCounter() {
         return groupedCallsOriginCounter;
     }
+
+    /* TODO: map as a string
+    public String getStringOfGroupedCallsOriginCounter() {
+        List keys = new ArrayList (groupedCallsOriginCounter.keySet());
+        String mapAsString = "";
+        for (element : keys) {
+            mapAsString += " " + String.valueOf(element.) +
+        }
+        return mapAsString;
+    }
+
+     */
 
     public Map getGroupedCallsDestinationCounter() {
         return groupedCallsDestinationCounter;
