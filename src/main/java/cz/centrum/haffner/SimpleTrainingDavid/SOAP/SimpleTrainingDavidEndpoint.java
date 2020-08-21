@@ -12,6 +12,7 @@ import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+import org.springframework.ws.soap.server.endpoint.SoapFaultMappingExceptionResolver;
 
 @Endpoint
 public class SimpleTrainingDavidEndpoint {
@@ -22,6 +23,8 @@ public class SimpleTrainingDavidEndpoint {
     KpisInfoService kpisInfoService;
     @Autowired
     MetricsInfoService metricsInfoService;
+    @Autowired
+    SoapFaultMappingExceptionResolver exceptionResolver;
 
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getMetricsRequest")
@@ -29,16 +32,18 @@ public class SimpleTrainingDavidEndpoint {
     public MetricsInfoData getMetrics(@RequestPayload GetMetricsRequest request) {
         logger.debug("Receiving metrics SOAP request.");
 
-        MetricsInfoData soapResponse = new MetricsInfoData();
         try {
-            soapResponse = metricsInfoService.processData( Long.parseLong(request.getDate()) );
+            MetricsInfoData soapResponse = metricsInfoService.processData( Long.parseLong(request.getDate()) );
             logger.debug("Returning metrics SOAP response.");
+            return soapResponse;
         } catch (Exception e) {
             logger.debug("Returning metrics SOAP response with error.");
             logger.error(e.getMessage(), e);
-        }
 
-        return soapResponse;
+            throw new ServiceFaultException("Error when obtaining data from file: " + request.getDate(),
+                                            new ServiceStatus("404","FILE NOT FOUND.")
+                                            );
+        }
     }
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getKpisRequest")
