@@ -12,14 +12,7 @@
     <xs:element name="getMetricsResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="missingFieldsRowsNumber" type="xs:int"/>
-                <xs:element name="blankContentMessagesNumber" type="xs:int"/>
-                <xs:element name="fieldsErrorsRowsNumber" type="xs:int"/>
-                <xs:element name="groupedCallsOriginNumber" type="xs:string"/>
-                <xs:element name="groupedCallsDestinationNumber" type="xs:string"/>
-                <xs:element name="koToOkRatio" type="xs:string"/>
-                <xs:element name="groupedAverageCallDuration" type="xs:string"/>
-                <xs:element name="givenWordsRanking" type="xs:string"/>
+
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -35,13 +28,7 @@
     <xs:element name="getKpisResponse">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="processedFilesNumber" type="xs:int"/>
-                <xs:element name="totalRowsNumber" type="xs:int"/>
-                <xs:element name="totalCallsNumber" type="xs:int"/>
-                <xs:element name="totalMessagesNumber" type="xs:int"/>
-                <xs:element name="differentOriginCodesNumber" type="xs:int"/>
-                <xs:element name="differentDestinationCodesNumber" type="xs:int"/>
-                <xs:element name="jsonProcessingDurationList" type="tns:valuelist"/>
+
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -4,10 +4,7 @@ import cz.centrum.haffner.SimpleTrainingDavid.AppServices.KpisInfoService;
 import cz.centrum.haffner.SimpleTrainingDavid.AppServices.MetricsInfoService;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.KpisInfoData;
 import cz.centrum.haffner.SimpleTrainingDavid.DataTemplates.MetricsInfoData;
-import cz.centrum.haffner.SimpleTrainingDavid.Kafka.KafkaSimpleProducer;
-import haffner.centrum.cz.simple_training_david.GetKpisResponse;
 import haffner.centrum.cz.simple_training_david.GetMetricsRequest;
-import haffner.centrum.cz.simple_training_david.GetMetricsResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +22,16 @@ public class SimpleTrainingDavidEndpoint {
     KpisInfoService kpisInfoService;
     @Autowired
     MetricsInfoService metricsInfoService;
-    @Autowired
-    KafkaSimpleProducer kafkaSimpleProducer;
-    @Autowired
-    GetMetricsResponseMapper getMetricsResponseMapper;
-    @Autowired
-    GetKpisResponseMapper getKpisResponseMapper;
 
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getMetricsRequest")
     @ResponsePayload
-    public GetMetricsResponse getMetrics(@RequestPayload GetMetricsRequest request) {
+    public MetricsInfoData getMetrics(@RequestPayload GetMetricsRequest request) {
         logger.debug("Receiving metrics SOAP request.");
 
-        GetMetricsResponse soapResponse = new GetMetricsResponse();
+        MetricsInfoData soapResponse = new MetricsInfoData();
         try {
-            MetricsInfoData responseData = metricsInfoService.processData( Long.parseLong( request.getDate() ));
-            soapResponse = getMetricsResponseMapper.process(responseData);
-
+            soapResponse = metricsInfoService.processData( Long.parseLong(request.getDate()) );
             logger.debug("Returning metrics SOAP response.");
         } catch (Exception e) {
             logger.debug("Returning metrics SOAP response with error.");
@@ -54,11 +43,10 @@ public class SimpleTrainingDavidEndpoint {
 
     @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getKpisRequest")
     @ResponsePayload
-    public GetKpisResponse getKpis() {
+    public KpisInfoData getKpis() {
         logger.debug("Receiving kpis SOAP request.");
 
-        KpisInfoData responseData = kpisInfoService.processData();
-        GetKpisResponse soapResponse = getKpisResponseMapper.process(responseData);
+        KpisInfoData soapResponse = kpisInfoService.processData();
 
         logger.debug("Returning kpis SOAP response.");
 

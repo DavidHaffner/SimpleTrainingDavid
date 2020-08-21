@@ -2,19 +2,36 @@ package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
 import org.springframework.stereotype.Component;
 
+import javax.xml.bind.annotation.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // singleton containing global service operations counters
 @Component
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+        "processedFilesNumber",
+        "totalRowsNumber",
+        "totalCallsNumber",
+        "totalMessagesNumber",
+        "differentOriginCodesSet",
+        "differentDestinationCodesSet",
+        "jsonProcessingDurationList"
+})
+@XmlRootElement(name = "getKpisResponse")
 public class KpisInfoData {
 
     private AtomicInteger processedFilesNumber = new AtomicInteger(0); // Total number of processed JSON files
     private AtomicInteger totalRowsNumber = new AtomicInteger(0);      // Total number of rows
     private AtomicInteger totalCallsNumber = new AtomicInteger(0);     // Total number of calls
     private AtomicInteger totalMessagesNumber = new AtomicInteger(0);  // Total number of messages
+    @XmlElementWrapper(name="differentOriginCodesSet")
+    @XmlElement(name="originCode")
     private Set<Integer> differentOriginCodesSet = Collections.synchronizedSet(new HashSet<>());  // Total number of different origin country codes
+    @XmlElementWrapper(name="differentDestinationCodesSet")
+    @XmlElement(name="destinationCode")
     private Set<Integer> differentDestinationCodesSet = Collections.synchronizedSet(new HashSet<>()); // Total number of different destination country codes
+    @XmlTransient  // this field is transformed into xml by using of its getter (returns 10 last values only)
     private List<Long> jsonProcessingDurationList = Collections.synchronizedList(new LinkedList<>());  // Duration of each JSON process
 
 
@@ -113,7 +130,9 @@ public class KpisInfoData {
         return this.differentDestinationCodesSet.size();
     }
 
-    public List getLastTenProcessingDurations() {
+    @XmlElementWrapper(name="jsonProcessingDurationList")
+    @XmlElement(name="duration")
+    public List getJsonProcessingDurationList() {
         int listSize = jsonProcessingDurationList.size();
         if ( listSize <11 ) {
             return jsonProcessingDurationList;
