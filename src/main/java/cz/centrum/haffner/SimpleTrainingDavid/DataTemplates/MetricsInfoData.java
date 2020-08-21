@@ -1,20 +1,39 @@
 package cz.centrum.haffner.SimpleTrainingDavid.DataTemplates;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import javax.xml.bind.annotation.*;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+        "missingFieldsRowsCounter",
+        "blankContentMessagesCounter",
+        "fieldsErrorsRowsCounter",
+        "groupedCallsOriginCounter",
+        "groupedCallsDestinationCounter",
+        "koToOkRatio",
+        "groupedAverageCallDuration",
+        "givenWordsRanking"
+})
+@XmlRootElement(name = "getMetricsResponse")
 public class MetricsInfoData {
 
     private int missingFieldsRowsCounter = 0;        // Number of rows with missing fields
     private int blankContentMessagesCounter = 0;     // Number of messages with blank content
     private int fieldsErrorsRowsCounter = 0;        // Number of rows with fields errors
+    @XmlElementWrapper(name="groupedCallsOrigin")
+    @XmlElement(name="callsFromOriginCounter")
     private Map<Integer, Integer> groupedCallsOriginCounter = new HashMap();  // Number of calls origin grouped by country code
+    @XmlElementWrapper(name="groupedCallsDestination")
+    @XmlElement(name="callsToDestinationCounter")
     private Map<Integer, Integer> groupedCallsDestinationCounter = new HashMap();  // Number of calls destination grouped by country code
     private float koToOkRatio = 0.0f;               // Relationship between OK/KO calls
+    @XmlElementWrapper(name="groupedAverageCallDuration")
+    @XmlElement(name="averageDurationFromOrigin")
     private Map<Integer, Float> groupedAverageCallDuration = new HashMap();   // Average call duration grouped by country code
+    @XmlElementWrapper(name="givenWordsRanking")
+    @XmlElement(name="givenWordCounter")
     private Map<String, Integer> givenWordsRanking = new HashMap();   // Word occurrence ranking for the given words in message
 
     // increment by 1
